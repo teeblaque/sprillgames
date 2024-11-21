@@ -1,0 +1,37 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "es2020",
+        "strict": true,
+        "jsx": "react",
+        "outDir": "./dist",
+        "allowJs": true,
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "baseUrl": "./",
+        "types": ["vite/client"],
+        "lib": ["dom","es5", "es6", "es7"],
+        "paths": {
+            "@/*": [
+                "resources/ts/*"
+            ],
+            "@image/*": ["/resources/images/*"],
+            "@css/*": ["/resources/css/*"],
+            "@resources/*": ["/resources/*"],
+        }
+    },
+    "include": [
+        "./resources/images",
+        "./resources/css",
+        "./resources",
+        "resources/ts/**/*.js",
+        "resources/ts/**/*.jsx",
+        "resources/ts/**/*.d.js",
+        "resources/ts/**/*.ts",
+        "resources/ts/**/*.tsx",
+        "resources/ts/**/*.d.ts", 
+        "resources/ts/app.tsx"    
+    ]
+}
