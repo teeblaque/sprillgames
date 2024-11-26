@@ -14,12 +14,16 @@
         "types": ["vite/client"],
         "lib": ["dom","es5", "es6", "es7"],
         "paths": {
+            // "@/*": [
+            //     "./resources/ts/*"
+            // ],
             "@/*": [
-                "resources/ts/*"
+                "./src/*"
             ],
-            "@image/*": ["/resources/images/*"],
-            "@css/*": ["/resources/css/*"],
-            "@resources/*": ["/resources/*"],
+            "@ts/*": ["./resources/ts/*"],
+            "@image/*": ["./resources/images/*"],
+            "@css/*": ["./resources/css/*"],
+            "@resources/*": ["./resources/*"],
         }
     },
     "include": [

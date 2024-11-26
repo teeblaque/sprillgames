@@ -18,7 +18,7 @@ class Authenticate
     {
 
         if (!Auth::check()) {
-            return redirect(route('login'));
+            return redirect('/auth/sign-in');
         }
 
         return $next($request);
@@ -26,7 +26,7 @@ class Authenticate
 
     protected function redirectTo($request): ?string
     {
-        return $request->expectsJson() ? null : redirect(route('login'));
+        return $request->expectsJson() ? null : redirect('/auth/sign-in');
     }
 
 

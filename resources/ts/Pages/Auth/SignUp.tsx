@@ -3,7 +3,7 @@ import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import LogoDark from '@images/logo/logo-dark.svg';
 import Logo from '@images/logo/logo.svg';
 import { Link } from '@inertiajs/react';
-import Main from '@/layouts/Main';
+import Main from '@ts/layouts/Main';
 import ReactFC from '../../../types/reactFC';
 // import ReactFC from '@resources/types/reactFC';
 import { useState } from 'react'
@@ -430,7 +430,7 @@ const SignUp: ReactFC = () => {
                       disabled={processing}
                       className="w-full cursor-pointer rounded-lg border border-primarycolor bg-primarycolor p-4 text-white transition hover:bg-opacity-90"
                     >
-                      Create an account {processing}
+                      Create an account
                     </button>
                   </div>
 

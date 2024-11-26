@@ -31,42 +31,42 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'firstname' => ['required'],
-            'lastname'=> ['required'],
-            'username'=> ['required', 'unique:users'],
-            'phone'=> ['required'],
-            'countryCode'=> ['required'],
-            'email'=> ['required', 'unique:users'],
-            'password'=> ['required', 'min:8'],
-        ]);
+        // $request->validate([
+        //     'firstname' => ['required'],
+        //     'lastname'=> ['required'],
+        //     'username'=> ['required', 'unique:users'],
+        //     'phone'=> ['required'],
+        //     'countryCode'=> ['required'],
+        //     'email'=> ['required', 'unique:users'],
+        //     'password'=> ['required', 'min:8'],
+        // ]);
 
-        $user = User::create([
-            'uuid' => md5($request->email),
-            'firstname' => $request->firstname,
-            'lastname' => $request->lastname,
-            'username' => $request->username,
-            'phone' => $request->phone,
-            'country_code' => $request->countryCode,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        // $user = User::create([
+        //     'uuid' => md5($request->email),
+        //     'firstname' => $request->firstname,
+        //     'lastname' => $request->lastname,
+        //     'username' => $request->username,
+        //     'phone' => $request->phone,
+        //     'country_code' => $request->countryCode,
+        //     'email' => $request->email,
+        //     'password' => Hash::make($request->password),
+        // ]);
 
-        return redirect('/dashboard');
+        // return redirect('/dashboard');
     }
 
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required',   
-            'password' => 'required']
-        );
+        // $request->validate([
+        //     'email' => 'required',   
+        //     'password' => 'required']
+        // );
 
-        $credentials = $request->only('email','password');
-        if (Auth::attempt($credentials)){
-            return redirect()->intended(route('dashboard'));
-        }  
-        return redirect(route('login'))->with('error','Wrong email or password');
+        // $credentials = $request->only('email','password');
+        // if (Auth::attempt($credentials)){
+        //     return redirect()->intended(route('dashboard'));
+        // }  
+        // return redirect(route('login'))->with('error','Wrong email or password');
         
     }
 
@@ -100,11 +100,5 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         //
-    }
-
-    public function logout(){
-        Session::flush();
-        Auth::logout();
-        return redirect(route('login'));
     }
 }

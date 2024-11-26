@@ -12,7 +12,8 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            '@': '/resources/ts',
+            '@': '/src',
+            '@ts': '/resources/ts',
             '@images': '/resources/images',
             '@css': '/resources/css',
             '@resources': '/resources',
