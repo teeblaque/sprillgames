@@ -1,0 +1,149 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Jobs\VerifyAccount;
+use App\Mail\SendLoginNotifictionMail;
+use App\Models\User;
+use App\Models\Wallet;
+use App\Traits\ApiResponser;
+use App\Traits\HasPhoneFieldTrait;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpKernel\Attribute\WithHttpStatus;
+
+class AuthController extends Controller
+{
+    use ApiResponser, HasPhoneFieldTrait;
+
+    public function register(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'phone' => 'required|unique:users,phone',
+                'username' => 'required|unique:users,username',
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|string|min:8',
+            ]);
+
+            if ($validator->fails()) {
+                return $this->error($validator->errors()->first(), 400);
+            }
+
+            $otp = generateOtp();
+            $user = User::create([
+                'phone' => $this->getPhoneNumberWithDialingCode($request->phone, ''),
+                'username' => $request->username,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'name' => $request->name,
+                'role' =>'user',
+                'otp' => $otp
+            ]);
+            Wallet::create(['user_id' => $user->id]);
+
+            VerifyAccount::dispatchAfterResponse($user, $otp);
+            return $this->success('Otp sent to your mail, kindly verify your account', $user, 201);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function login(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|string|exists:users,email',
+                'password' => 'required|string'
+            ]);
+
+            if ($validator->fails()) {
+                return $this->error($validator->errors()->first(), 400);
+            }
+
+            if (is_numeric($request->get('email'))) {
+                $credentials = ['phone' => $request->get('email'), 'password' => $request->get('password')];
+            } else {
+                $credentials = $request->only($this->username(), 'password');
+            }
+
+            if (!Auth::attempt($credentials)) {
+                return $this->error('Credential mismatch', 400);
+            }
+
+            $userapp = Auth::user();
+
+            // Delete all existing tokens for the user
+            $userapp->tokens()->delete();
+
+            $user = User::where('id', $userapp->id)->with(['wallet'])->first();
+
+            if ($user && $user->isBlocked) {
+                return $this->error('Account blocked, contact support!!!', 400);
+            }
+
+            if ($user && !$user->isVerified) {
+                $otp = generateOtp();
+
+                $user->update([
+                    'otp' => $otp
+                ]);
+                VerifyAccount::dispatchAfterResponse($user, $otp);
+
+                return $this->error('Kindly verify your account', 401);
+            }
+            
+            Mail::to($user->email)->send(new SendLoginNotifictionMail($user));
+
+            $success['access_token'] =  $user->createToken('access_token')->plainTextToken;
+            $success['refresh_token'] =  $user->createToken('refresh_token')->plainTextToken;
+            $success['token_type'] = 'Bearer';
+            $success['user'] =  $user;
+
+            return $this->success('User login successfully.', $success, 200);
+        } catch (\Throwable $error) {
+            return $this->error($error->getMessage(), 400);
+        }
+    }
+
+    public function username()
+    {
+        return 'email';
+    }
+
+    public function logout(Request $request)
+    {
+        try {
+            $request->user()->tokens('access_token')->delete();
+            return $this->success('You have been successfully logged out!', 200);
+        } catch (\Exception $error) {
+            return $this->error($error->getMessage(), 500);
+        }
+    }
+
+    public function refreshToken(Request $request)
+    {
+        $userapp = Auth::user();
+        // Delete all existing tokens for the user
+        $userapp->tokens()->delete();
+        
+        $user = User::where('id', $userapp->id)->with(['wallet'])->first();
+        if ($user && $user->isBlocked) {
+            return $this->error('Account blocked, contact support!!!', 400);
+        }
+        $success['access_token'] =  $user->createToken('refresh_token')->plainTextToken;
+        $success['refresh_token'] =  $user->createToken('refresh_token')->plainTextToken;
+        $success['token_type'] = 'Bearer';
+        $success['user'] =  $user;
+
+        return $this->success('User login successfully.', $success, 200);
+    }
+}
