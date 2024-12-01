@@ -3,6 +3,7 @@
 use App\Constants\TokenAbility;
 use App\Http\Controllers\AddFundController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BankController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Middleware\BlockAccess;
@@ -18,8 +19,8 @@ Route::group(['prefix' => 'auth'], function () {
         Route::get('/refresh-token', [AuthController::class, 'refreshToken']);
     });
 
-     #The OTP section
-     Route::group(['prefix' => 'otp'], function () {
+    #The OTP section
+    Route::group(['prefix' => 'otp'], function () {
         Route::post('resend', [VerificationController::class, 'resendOTP']);
         Route::post('validate', [VerificationController::class, 'validateOTP']);
     });
@@ -33,12 +34,29 @@ Route::group(['prefix' => 'auth'], function () {
 
 #authenticated route
 Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function () {
+     //banks
+     Route::get('banks', [AddFundController::class, 'banks']);
+     //resolve account number
+     Route::post('resolve-account', [AddFundController::class, 'resolveAccount']);
+     //initiate pin
+     Route::post('initiate-transaction', [AddFundController::class, 'initiateTransaction']);
+
     Route::group(['prefix' => 'user'], function () {
         #get user
         Route::get('/', [UserController::class, 'index']);
+        Route::delete('/remove-account', [UserController::class, 'remove']);
+        Route::put('/update', [UserController::class, 'update']);
 
-         #paystack money
-         Route::group(['prefix' => 'funds'], function () {
+        Route::post('/add-bank', [BankController::class, 'store']);
+        Route::delete('delete-bank/{id}', [BankController::class, 'removeBank']);
+        Route::delete('delete-card/{id}', [BankController::class, 'removeCard']);
+        Route::get('/banks', [BankController::class, 'index']);
+
+        //transaction history
+        Route::get('transaction-history', [UserController::class, 'transactionHistory']);
+
+        #paystack money
+        Route::group(['prefix' => 'funds'], function () {
             Route::post('verify-payment', [AddFundController::class, 'verifyPayment']);
             //authorized card
             Route::post('authorized-card', [AddFundController::class, 'authorizedCard']);
