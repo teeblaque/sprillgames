@@ -54,7 +54,7 @@ class VerificationController extends Controller
             //generate otp function
             $otp = generateOtp();
 
-            $user = User::('email', $request->email)->first();
+            $user = User::where('email', $request->email)->first();
             if ($user) {
                 $user->update([
                     'otp' => $otp
