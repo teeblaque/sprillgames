@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerificationController;
+use App\Http\Controllers\WithdrawalController;
 use App\Http\Middleware\BlockAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -61,6 +62,13 @@ Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function ()
             //authorized card
             Route::post('authorized-card', [AddFundController::class, 'authorizedCard']);
             Route::get('cards', [AddFundController::class, 'cards']);
+        });
+
+        #withdrawal
+        Route::group(['prefix' => 'withdrawal', 'middleware' => ['bvnNinMiddleware']], function () {
+            Route::post('/', [WithdrawalController::class, 'store']);
+            Route::get('/', [WithdrawalController::class, 'index']);
+            Route::post('/cancel/{id}', [WithdrawalController::class, 'cancel']);
         });
     });
 });
