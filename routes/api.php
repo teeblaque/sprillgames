@@ -4,6 +4,7 @@ use App\Constants\TokenAbility;
 use App\Http\Controllers\AddFundController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankController;
+use App\Http\Controllers\BetController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\WithdrawalController;
@@ -65,10 +66,18 @@ Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function ()
         });
 
         #withdrawal
-        Route::group(['prefix' => 'withdrawal', 'middleware' => ['bvnNinMiddleware']], function () {
+        Route::group(['prefix' => 'withdrawal'], function () {
             Route::post('/', [WithdrawalController::class, 'store']);
             Route::get('/', [WithdrawalController::class, 'index']);
             Route::post('/cancel/{id}', [WithdrawalController::class, 'cancel']);
+        });
+
+        #Bet
+        Route::group(['prefix' => 'bet'], function () {
+            Route::post('special', [BetController::class, 'special']);
+            Route::post('one-on-one', [BetController::class, 'oneOnOne']);
+            Route::get('one-bets', [BetController::class, 'oneBets']);
+            Route::patch('join-bet/{id}', [BetController::class, 'joinBet']);
         });
     });
 });

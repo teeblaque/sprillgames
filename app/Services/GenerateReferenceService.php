@@ -12,7 +12,7 @@ class GenerateReferenceService
      */
     public function generateReference()
     {
-        $getReference = 'YANZU'.uniqid().time();
+        $getReference = 'sprillgames'.uniqid().time();
         return $getReference;
     }
 
@@ -23,14 +23,14 @@ class GenerateReferenceService
 
     public function getReference($id, $tag='')
     {
-        $getReference = 'YANZU'.$id.'-'.$tag.uniqid().time();
+        $getReference = 'sprillgames'.$id.'-'.$tag.uniqid().time();
         // $getReference = 'HL'.'-'.'id of the payment record-'.time();
         return $getReference;
     }
 
     public function getRef($tag='')
     {
-        $getReference = 'YANZU'.$tag.uniqid().time();
+        $getReference = 'sprillgames'.$tag.uniqid().time();
         // $getReference = 'HL'.'-'.'id of the payment record-'.time();
         return $getReference;
     }
