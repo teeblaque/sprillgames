@@ -24,7 +24,8 @@ class WalletTransaction extends Model
         'is_active',
         'gateway_response',
         'payment_channel',
-        'user_id'
+        'user_id',
+        'trans_group',
     ];
 
      /**

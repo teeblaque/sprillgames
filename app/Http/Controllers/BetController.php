@@ -1,0 +1,236 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Constants\TransactionGroup;
+use App\Models\Bet;
+use App\Models\OneBet;
+use App\Services\BankAccount\AccountDebit;
+use App\Services\GenerateReferenceService;
+use App\Services\WalletCredit;
+use App\Services\WalletDebit;
+use App\Traits\ApiResponser;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+
+class BetController extends Controller
+{
+    use ApiResponser;
+
+    public function oneBets(Request $request) 
+    {
+        $bets = OneBet::where('status', 'pending')->with('user')->paginate($request->per_page);
+        return $this->success('Record retrieved', $bets);
+    }
+
+    public function special(Request $request)
+    {
+        try {
+            $success = false;
+            $validator = Validator::make($request->all(), [
+                'amount' => 'required|numeric|min:50|max:500000',
+                'values' => 'required|array|min:2|max:2'
+            ], [
+                'amount.min' => 'The minimum amount you can stake is N50',
+                'amount.max' => 'The maximum amount you can stake is N500,000.',
+                'amount.numeric' => 'The amount must be a valid number.',
+            ]);
+
+            if ($validator->fails()) {
+                return $this->error($validator->errors()->first(), 400);
+            }
+            DB::beginTransaction();
+
+            if (!(new AccountDebit)->balanceCheck($request->amount, Auth::id())) {
+                return $this->error("Insufficient wallet balance");
+            }
+
+            if ($request->amount < 50) return $this->error('Minimum amount to stake is N50');
+
+            if ($request->amount > 500000) return $this->error('Maximum amount to stake is N500,000');
+
+            //TODO: //generate 2 random numbers between 1 to 10
+            $range = range(1, 10);
+            // Shuffle the array to randomize the order
+            shuffle($range);
+
+            // Select the first two numbers
+            $randomNumbers = array_slice($range, 0, 2);
+
+            if (empty(array_diff($randomNumbers, $request->values)) && empty(array_diff($request->values, $randomNumbers))) {
+                $success = true;
+            } else {
+                $success = false;
+            }
+
+            $reference = (new GenerateReferenceService())->generateReference();
+            if (!$success) {
+                $payload = [
+                    'user_id' => Auth::id(),
+                    'reference' => $reference,
+                    'amount' => $request->amount,
+                    'trans_group' => TransactionGroup::SPECIAL_BET,
+                    'gateway_response' => 'wallet',
+                    'payment_channel' => 'wallet',
+                    'narration' => 'Your special bet didnt go as planned',
+                    'trx_source' => 'Wallet'
+                ];
+                (new WalletDebit())->debit($payload);
+            } else {
+                $payload = [
+                    'user_id' => Auth::id(),
+                    'reference' => $reference,
+                    'amount' => $request->amount,
+                    'trans_group' => TransactionGroup::SPECIAL_BET,
+                    'gateway_response' => 'wallet',
+                    'payment_channel' => 'wallet',
+                    'ip_address' => null,
+                    'domain' => null,
+                    'narration' => 'Your special bet was successful'
+                ];
+                (new WalletCredit())->createCredit($payload);
+            }
+
+            Bet::create([
+                'user_id' => Auth::id(),
+                'amount' => $request->amount,
+                'values' => $request->values,
+                'amount_earned' => $request->amount * 200,
+                'system_value' => $randomNumbers,
+                'odds' => 200,
+                'status' => $success ? 'successful' : 'failed'
+            ]);
+
+            DB::commit();
+            return $this->success($success ? 'Bet was placed successfully' : 'You loss, better luck!!!', 201);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
+    public function oneOnOne(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'initial_value' => 'required|numeric|in:1,2',
+                'amount' => 'required|numeric|min:50|max:500000',
+            ], [
+                'amount.min' => 'The minimum amount you can stake is N50',
+                'amount.max' => 'The maximum amount you can stake is N500,000.',
+                'amount.numeric' => 'The amount must be a valid number.',
+            ]);
+
+            if ($validator->fails()) {
+                return $this->error($validator->errors()->first(), 400);
+            }
+            DB::beginTransaction();
+
+            if (!(new AccountDebit)->balanceCheck($request->amount, Auth::id())) {
+                return $this->error("Insufficient wallet balance");
+            }
+
+            $onebet = OneBet::create([
+                'user_id' => Auth::id(),
+                'initial_value' => $request->initial_value,
+                'amount' => $request->amount,
+                'amount_earned' => $request->amount * 200,
+                'odds' => 200,
+            ]);
+
+            DB::commit();
+            if ($onebet) {
+                $reference = (new GenerateReferenceService())->generateReference();
+                $payload = [
+                    'user_id' => Auth::id(),
+                    'reference' => $reference,
+                    'amount' => $request->amount,
+                    'trans_group' => TransactionGroup::ONE_ON_ONE,
+                    'gateway_response' => 'wallet',
+                    'payment_channel' => 'wallet',
+                    'narration' => 'Bet fee (ONE-ON-ONE)',
+                    'trx_source' => 'Wallet'
+                ];
+                (new WalletDebit())->debit($payload);
+
+                return $this->success('Bet was placed successfully', [], 201);
+            }
+
+            return $this->error('Action was not successful, try again!!!', 400);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
+    public function joinBet(Request $request, $id)
+    {
+        try {
+            DB::beginTransaction();
+            $bet = OneBet::findOrFail($id);
+
+            // Generate a random number between 1 and 2
+            $randomNumber = rand(1, 2);
+            if ($randomNumber == $bet->initial_value) {
+                $payload = [
+                    'user_id' => $bet->user_id,
+                    'reference' => (new GenerateReferenceService())->generateReference(),
+                    'amount' => $request->amount,
+                    'trans_group' => TransactionGroup::ONE_ON_ONE,
+                    'gateway_response' => 'wallet',
+                    'payment_channel' => 'wallet',
+                    'ip_address' => null,
+                    'domain' => null,
+                    'narration' => 'Your special bet was successful'
+                ];
+                (new WalletCredit())->createCredit($payload);
+
+                $payload = [
+                    'user_id' => Auth::id(),
+                    'reference' => (new GenerateReferenceService())->generateReference(),
+                    'amount' => $request->amount,
+                    'trans_group' => TransactionGroup::ONE_ON_ONE,
+                    'gateway_response' => 'wallet',
+                    'payment_channel' => 'wallet',
+                    'ip_address' => null,
+                    'domain' => null,
+                    'narration' => 'Your one on one bet was not successful'
+                ];
+                (new WalletDebit())->debit($payload);
+
+                $bet->update([
+                    'winner' => $bet->user_id,
+                    'status' => 'completed',
+                    'second_value' => $randomNumber
+                ]);
+            }else{
+                $payload = [
+                    'user_id' => Auth::id(),
+                    'reference' => (new GenerateReferenceService())->generateReference(),
+                    'amount' => $request->amount,
+                    'trans_group' => TransactionGroup::ONE_ON_ONE,
+                    'gateway_response' => 'wallet',
+                    'payment_channel' => 'wallet',
+                    'ip_address' => null,
+                    'domain' => null,
+                    'narration' => 'Your special bet was successful'
+                ];
+                (new WalletCredit())->createCredit($payload);
+
+                $bet->update([
+                    'winner' => Auth::id(),
+                    'status' => 'completed',
+                    'second_value' => $randomNumber
+                ]);
+            }
+
+            DB::commit();
+            return $this->success('Action was successful');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+}

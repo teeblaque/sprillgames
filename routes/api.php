@@ -4,8 +4,10 @@ use App\Constants\TokenAbility;
 use App\Http\Controllers\AddFundController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankController;
+use App\Http\Controllers\BetController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerificationController;
+use App\Http\Controllers\WithdrawalController;
 use App\Http\Middleware\BlockAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -61,6 +63,21 @@ Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function ()
             //authorized card
             Route::post('authorized-card', [AddFundController::class, 'authorizedCard']);
             Route::get('cards', [AddFundController::class, 'cards']);
+        });
+
+        #withdrawal
+        Route::group(['prefix' => 'withdrawal'], function () {
+            Route::post('/', [WithdrawalController::class, 'store']);
+            Route::get('/', [WithdrawalController::class, 'index']);
+            Route::post('/cancel/{id}', [WithdrawalController::class, 'cancel']);
+        });
+
+        #Bet
+        Route::group(['prefix' => 'bet'], function () {
+            Route::post('special', [BetController::class, 'special']);
+            Route::post('one-on-one', [BetController::class, 'oneOnOne']);
+            Route::get('one-bets', [BetController::class, 'oneBets']);
+            Route::patch('join-bet/{id}', [BetController::class, 'joinBet']);
         });
     });
 });

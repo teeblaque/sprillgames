@@ -53,6 +53,7 @@ class WalletDebit
                 'domain' =>   $data['domain'] ?? null,
                 'narration' =>   $data['narration'] ?? null,
                 'payment_channel' => $data['payment_channel'] ?? null,
+                'trans_group' => $data['trans_group'],
                 'is_active' =>  true,
             ]);
 
