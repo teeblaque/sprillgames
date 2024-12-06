@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Constants\TransactionGroup;
 use App\Models\Bet;
 use App\Models\OneBet;
+use App\Models\WalletTransaction;
 use App\Services\BankAccount\AccountDebit;
 use App\Services\GenerateReferenceService;
 use App\Services\WalletCredit;
@@ -21,7 +22,7 @@ class BetController extends Controller
 
     public function oneBets(Request $request) 
     {
-        $bets = OneBet::where('status', 'pending')->with('user')->paginate($request->per_page);
+        $bets = OneBet::where('status', 'pending')->with('user')->paginate($request->per_page ?? 20);
         return $this->success('Record retrieved', $bets);
     }
 
@@ -232,5 +233,14 @@ class BetController extends Controller
             DB::rollBack();
             return $this->error($th->getMessage(), 500);
         }
+    }
+
+    public function transactions(Request $request)
+    {
+        if (!$request->bet_type)
+            return $this->error('Bet type is required');
+        
+        $transactions = WalletTransaction::where(['user_id' => Auth::id(), 'trans_group' => $request->bet_type])->paginate($request->per_page ?? 20);
+        return $this->success('Record retrieved', $transactions);
     }
 }
