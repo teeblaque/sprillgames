@@ -5,6 +5,7 @@ use App\Http\Controllers\AddFundController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\BetController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\WithdrawalController;
@@ -44,6 +45,10 @@ Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function ()
      Route::post('initiate-transaction', [AddFundController::class, 'initiateTransaction']);
 
     Route::group(['prefix' => 'user'], function () {
+        Route::group(['prefix' => 'dashboard'], function(){
+            Route::get('analytics', [DashboardController::class, 'index']);
+            Route::get('transactions', [DashboardController::class, 'transactions']);
+        });
         #get user
         Route::get('/', [UserController::class, 'index']);
         Route::delete('/remove-account', [UserController::class, 'remove']);
@@ -77,6 +82,7 @@ Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function ()
             Route::post('special', [BetController::class, 'special']);
             Route::post('one-on-one', [BetController::class, 'oneOnOne']);
             Route::get('one-bets', [BetController::class, 'oneBets']);
+            Route::get('transactions', [BetController::class, 'transactions']);
             Route::patch('join-bet/{id}', [BetController::class, 'joinBet']);
         });
     });
