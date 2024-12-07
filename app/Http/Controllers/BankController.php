@@ -39,6 +39,7 @@ class BankController extends Controller
                 'account_name' => $request->account_name,
                 'account_number' => $request->account_number,
                 'bank_name' => $request->bank_name,
+                'transfer_recipient' => 'no code'
             ]);
             if ($bank) {
                 $tx = $paystack->createTransferRecipient($bank);

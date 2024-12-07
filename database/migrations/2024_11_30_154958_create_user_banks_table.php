@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('bank_code');
             $table->string('account_name');
             $table->string('account_number');
-            $table->string('transfer_recipient');
+            $table->string('transfer_recipient')->nullable();
             $table->string('provider');
             $table->timestamps();
         });
