@@ -113,7 +113,7 @@ class WalletCredit
                 'ip_address' =>  $data['ip_address'] ?? null,
                 'domain' =>   $data['domain'] ?? null,
                 'narration' =>   $data['narration'] ?? null,
-                'trans_group' => $data['trans_group'],
+                'trans_group' => $data['trans_group'] ?? null,
                 'is_active' =>  true,
             ]);
 
