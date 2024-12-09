@@ -132,7 +132,7 @@
                                   padding-right: 0px;
                                   word-break: normal;
                                 ">
-                                                Welcome to {{ config('app.name') }}; the Sprillgames management platform
+                                                Welcome to {{ config('app.name') }}; the betting management platform
                                             </td>
                                         </tr>
 
@@ -210,7 +210,6 @@
                           word-break: normal;
                         ">
                                     The Sprillgames
-                                    {{ config('app.url') }}
                                 </td>
                             </tr>
                             </tbody>
