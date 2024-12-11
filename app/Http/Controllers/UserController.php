@@ -8,6 +8,8 @@ use App\Traits\ApiResponser;
 use App\Traits\HasPhoneFieldTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -50,5 +52,30 @@ class UserController extends Controller
     {
         $transactions = WalletTransaction::where('user_id', Auth::id())->latest()->paginate($request->limit ?? 20);
         return $this->success('Record retrieved', $transactions);
+    }
+
+    public function updateTransactionPin(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'pin' => 'required|string',
+                'otp' => 'required|string|exists:users,otp',
+            ]);
+
+            if ($validator->fails()) {
+                return $this->error($validator->errors()->first(), 400);
+            }
+
+            $user = User::find(Auth::id());
+
+            $user->update([
+                'otp' => null,
+                'transaction_pin' => Hash::make($request->pin),
+                'isPinSet' => true
+            ]);
+            return $this->success('Transaction pin updated successfully', [], 200);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
     }
 }

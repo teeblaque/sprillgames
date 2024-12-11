@@ -94,7 +94,7 @@ class BetController extends Controller
                 (new WalletCredit())->createCredit($payload);
             }
 
-            Bet::create([
+            $bet = Bet::create([
                 'user_id' => Auth::id(),
                 'amount' => $request->amount,
                 'values' => $request->values,
@@ -105,7 +105,7 @@ class BetController extends Controller
             ]);
 
             DB::commit();
-            return $this->success($success ? 'Bet was placed successfully' : 'You loss, better luck!!!', 201);
+            return $this->success($success ? 'Bet was placed successfully' : 'You loss, better luck!!!', $bet, 201);
         } catch (\Throwable $th) {
             DB::rollBack();
             return $this->error($th->getMessage(), 500);
@@ -228,7 +228,7 @@ class BetController extends Controller
             }
 
             DB::commit();
-            return $this->success('Action was successful');
+            return $this->success('Action was successful', $bet, 200);
         } catch (\Throwable $th) {
             DB::rollBack();
             return $this->error($th->getMessage(), 500);
@@ -239,7 +239,7 @@ class BetController extends Controller
     {
         if (!$request->bet_type)
             return $this->error('Bet type is required');
-        
+
         $transactions = WalletTransaction::where(['user_id' => Auth::id(), 'trans_group' => $request->bet_type])->paginate($request->per_page ?? 20);
         return $this->success('Record retrieved', $transactions);
     }

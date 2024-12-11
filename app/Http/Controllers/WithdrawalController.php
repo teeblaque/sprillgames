@@ -33,16 +33,17 @@ class WithdrawalController extends Controller
             $validator = Validator::make($request->all(), [
                 'user_bank_id' => 'required|exists:user_banks,id',
                 'amount' => 'required',
-                'remark' => 'nullable'
+                'remark' => 'nullable',
+                'transaction_pin' => 'required'
             ]);
 
             if ($validator->fails()) {
                 return $this->error($validator->errors()->first(), 400);
             }
 
-            // if (!Hash::check($request->pin, Auth::user()->transaction_pin)) {
-            //     return $this->error('Invalid transaction pin.', 400);
-            // }
+            if (!Hash::check($request->pin, Auth::user()->transaction_pin)) {
+                return $this->error('Invalid transaction pin.', 400);
+            }
             if ($request->amount <= 2000) {
                 return $this->error('Minimum withdrawal amount must be greater than N2,000', 400);
             }

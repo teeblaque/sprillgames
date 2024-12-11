@@ -49,6 +49,8 @@ Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function ()
             Route::get('analytics', [DashboardController::class, 'index']);
             Route::get('transactions', [DashboardController::class, 'transactions']);
         });
+        //create transaction pin
+        Route::post('update-transaction-pin', [UserController::class, 'updateTransactionPin']);
         #get user
         Route::get('/', [UserController::class, 'index']);
         Route::delete('/remove-account', [UserController::class, 'remove']);
