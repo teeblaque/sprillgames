@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\BetController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PredictController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\WithdrawalController;
@@ -86,6 +87,11 @@ Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function ()
             Route::get('one-bets', [BetController::class, 'oneBets']);
             Route::get('transactions', [BetController::class, 'transactions']);
             Route::patch('join-bet/{id}', [BetController::class, 'joinBet']);
+
+            //predict
+            Route::get('fixtures', [PredictController::class, 'predictMach']);
+            Route::post('predict', [PredictController::class, 'predict']);
+            Route::get('pending-prediction', [PredictController::class, 'pendingBet']);
         });
     });
 });

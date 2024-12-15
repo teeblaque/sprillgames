@@ -4,15 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Constants\TransactionGroup;
 use App\Models\Bet;
+use App\Models\Fixtures;
 use App\Models\OneBet;
+use App\Models\Predict;
 use App\Models\WalletTransaction;
 use App\Services\BankAccount\AccountDebit;
 use App\Services\GenerateReferenceService;
+use App\Services\SprillGamesService\SportService;
 use App\Services\WalletCredit;
 use App\Services\WalletDebit;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -20,7 +25,7 @@ class BetController extends Controller
 {
     use ApiResponser;
 
-    public function oneBets(Request $request) 
+    public function oneBets(Request $request)
     {
         $bets = OneBet::where('status', 'pending')->with('user')->paginate($request->per_page ?? 20);
         return $this->success('Record retrieved', $bets);
@@ -141,7 +146,6 @@ class BetController extends Controller
                 'odds' => 200,
             ]);
 
-            DB::commit();
             if ($onebet) {
                 $reference = (new GenerateReferenceService())->generateReference();
                 $payload = [
@@ -156,6 +160,7 @@ class BetController extends Controller
                 ];
                 (new WalletDebit())->debit($payload);
 
+                DB::commit();
                 return $this->success('Bet was placed successfully', [], 201);
             }
 
@@ -206,7 +211,7 @@ class BetController extends Controller
                     'status' => 'completed',
                     'second_value' => $randomNumber
                 ]);
-            }else{
+            } else {
                 $payload = [
                     'user_id' => Auth::id(),
                     'reference' => (new GenerateReferenceService())->generateReference(),
