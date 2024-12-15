@@ -55,6 +55,10 @@ return [
     'url' => env('APP_URL', 'http://localhost'),
     'web_url' => env('APP_WEB_URL', 'http://localhost'),
 
+    //sprillgames
+    'sprillgames_api_url' => env('SPRILLGAMES_BASE_URL'),
+    'sprillgames_api_key' => env('SPRILLGAMES_API_KEY'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
