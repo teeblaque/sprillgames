@@ -33,8 +33,14 @@ class PredictController extends Controller
                     }
                     $fix = [
                         'fixture_id' => $value->fixture->id,
-                        'home_team' => $value->teams->home->id,
-                        'away_team' => $value->teams->away->id,
+                        'home_team' => [
+                            'name' => $value->teams->home->name,
+                            'logo' => $value->teams->home->logo
+                        ],
+                        'away_team' => [
+                            'name' => $value->teams->away->name,
+                            'logo' => $value->teams->away->logo
+                        ],
                         'date' => $value->fixture->date,
                     ];
                     array_push($fixturesArray, $fix);
