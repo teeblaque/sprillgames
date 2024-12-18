@@ -25,9 +25,9 @@ class DashboardController extends Controller
         $special_bet_wins = Bet::where('user_id', Auth::id())->sum('amount_earned');
 
         $special = [
-            'total_wins' => Bet::where(['user_id' => Auth::id(), 'status' => 'successful'])->sum('amount_earned'),
+            'total_wins' => Bet::where(['user_id' => Auth::id(), 'status' => 'successful'])->count(),
             'total_wager' => Bet::where(['user_id' => Auth::id()])->sum('amount'),
-            'total_loss' => Bet::where(['user_id' => Auth::id(), 'status' => 'failed'])->sum('amount')
+            'total_loss' => Bet::where(['user_id' => Auth::id(), 'status' => 'failed'])->count()
         ];
 
         $result = [
