@@ -34,6 +34,9 @@ class AuthController extends Controller
                 return $this->error($validator->errors()->first(), 400);
             }
 
+            $user = User::where('phone', $this->getPhoneNumberWithDialingCode($request->phone, ''))->first();
+            if($user) return $this->error('Phone number is already taken');
+            
             $otp = generateOtp();
             $user = User::create([
                 'phone' => $this->getPhoneNumberWithDialingCode($request->phone, ''),
