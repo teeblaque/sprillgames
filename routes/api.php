@@ -2,6 +2,8 @@
 
 use App\Constants\TokenAbility;
 use App\Http\Controllers\AddFundController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\Transaction;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\BetController;
@@ -11,6 +13,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\WithdrawalController;
 use App\Http\Middleware\BlockAccess;
+use App\Http\Middleware\CheckAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -92,6 +95,19 @@ Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function ()
             Route::get('fixtures', [PredictController::class, 'predictMach']);
             Route::post('predict', [PredictController::class, 'predict']);
             Route::get('pending-prediction', [PredictController::class, 'pendingBet']);
+        });
+    });
+
+    Route::group(['prefix' => 'admin', 'middleware' => [CheckAdmin::class]], function() {
+        Route::get('analytics', [AdminDashboardController::class, 'index']);
+        Route::get('users', [AdminDashboardController::class, 'users']);
+        Route::get('user/{id}', [AdminDashboardController::class, 'singleUser']);
+
+        Route::group(['prefix' => 'transactions'], function() {
+            Route::get('/', [Transaction::class, 'index']);
+            Route::get('special-bet', [Transaction::class, 'special_bet']);
+            Route::get('one-on-one', [Transaction::class, 'one_on_one']);
+            Route::get('predict', [Transaction::class, 'predict']);
         });
     });
 });

@@ -28,6 +28,7 @@ class AuthController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required|string|min:8',
+                'referred_code' => 'nullable|string|exists:users,referrer_code'
             ]);
 
             if ($validator->fails()) {
@@ -45,7 +46,8 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password),
                 'name' => $request->name,
                 'role' =>'user',
-                'otp' => $otp
+                'otp' => $otp,
+                'referred_code' => $request->referred_code
             ]);
             Wallet::create(['user_id' => $user->id]);
 
