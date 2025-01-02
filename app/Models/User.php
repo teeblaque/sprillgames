@@ -23,7 +23,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array<int, string>
      */
     protected $fillable = [
-        'name', 'phone', 'username', 'otp', 'isBlocked', 'isVerified', 'uuid',
+        'name', 'phone', 'username', 'otp', 'isBlocked', 'isVerified', 'uuid', 'referrer_code', 'referred_code',
         'email', 'isPinSet',
         'password',
     ];
@@ -63,6 +63,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
         static::creating(function ($cs) {
             $cs->uuid = Str::orderedUuid();
+            $cs->referrer_code = generateRandomAlphaNumeric(8);
         });
     }
 }
