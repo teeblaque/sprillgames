@@ -48,4 +48,17 @@ class DashboardController extends Controller
         $user = User::with(['wallet'])->where('id', $id)->first();
         return $this->success('user retrived', $user, 200);
     }
+
+    public function blockUser(Request $request, $id) 
+    {
+        try {
+            $user = User::findOrFail($id);
+            $user->update([
+                'isBlocked' => true
+            ]);
+            return $this->success('User blocked successfully', $user, 200);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
 }
