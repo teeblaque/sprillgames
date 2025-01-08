@@ -103,6 +103,7 @@ Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function ()
         Route::get('users', [AdminDashboardController::class, 'users']);
         Route::patch('user/block/{id}', [AdminDashboardController::class, 'blockUser']);
         Route::get('user/{id}', [AdminDashboardController::class, 'singleUser']);
+        Route::delete('user/{id}', [AdminDashboardController::class, 'deleteUser']);
 
         //withdrawal request
         Route::get('withdrawal-request', [AdminDashboardController::class, 'withdrawalRequest']);

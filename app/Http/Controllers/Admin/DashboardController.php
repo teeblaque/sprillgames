@@ -10,6 +10,9 @@ use App\Models\User;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
 use App\Models\Withdrawal;
+use App\Services\GenerateReferenceService;
+use App\Services\WalletCredit;
+use App\Services\WalletDebit;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -74,11 +77,12 @@ class DashboardController extends Controller
         return $this->success('Record retrieved', $withdrawal, 200);
     }
 
-    public function updateWithdrawalStatus(Request $request, $id) 
+    public function updateWithdrawalStatus(Request $request, $id)
     {
         try {
             $validator = Validator::make($request->all(), [
                 'status' => 'required|in:approved,declined',
+                'remark' => 'nullable|string'
             ]);
 
             if ($validator->fails()) {
@@ -87,8 +91,39 @@ class DashboardController extends Controller
 
             $withdrawal = Withdrawal::findOrFail($id);
             $withdrawal->update([
-                'status' => $request->status
+                'status' => $request->status,
+                'remark' => $request->remark
             ]);
+
+            if ($request->status == 'declined') {
+                $reference = (new GenerateReferenceService())->generateReference();
+                $payload = [
+                    'user_id' => $withdrawal->user_id,
+                    'reference' => $reference,
+                    'amount' => $withdrawal->amount,
+                    'gateway_response' => 'wallet',
+                    'payment_channel' => 'wallet',
+                    'narration' => 'Admin declined Wallet withdrawal request',
+                    'trx_source' => 'Wallet'
+                ];
+                $logTransaction = (new WalletCredit())->createCredit($payload);
+                if (!$logTransaction) {
+                    return $this->error('Could not process withdrawal, contact support!!!', 400);
+                }
+            }
+            return $this->success('Withdrawal request updated successfully', [], 200);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
+    public function deleteUser($id)
+    {
+        try {
+            $user = User::findOrFail($id);
+            $user->delete();
+
+            return $this->success('User record deleted successfully', [], 200);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
