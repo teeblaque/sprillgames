@@ -9,14 +9,16 @@ use App\Models\Predict;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
+use App\Models\Withdrawal;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class DashboardController extends Controller
 {
     use ApiResponser;
 
-    public function index() 
+    public function index()
     {
         $users = User::where('role', 'user')->count();
         $current_wallet_balance = Wallet::sum('balance_after');
@@ -37,9 +39,9 @@ class DashboardController extends Controller
         return $this->success('Record retrieved', $result, 200);
     }
 
-    public function users(Request $request ) 
+    public function users(Request $request)
     {
-        $users = User::paginate($request->per_page ?? 20);
+        $users = User::with('wallet')->paginate($request->per_page ?? 20);
         return $this->success('user retrived', $users, 200);
     }
 
@@ -49,7 +51,7 @@ class DashboardController extends Controller
         return $this->success('user retrived', $user, 200);
     }
 
-    public function blockUser(Request $request, $id) 
+    public function blockUser(Request $request, $id)
     {
         try {
             $user = User::findOrFail($id);
@@ -57,6 +59,36 @@ class DashboardController extends Controller
                 'isBlocked' => true
             ]);
             return $this->success('User blocked successfully', $user, 200);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
+    public function withdrawalRequest(Request $request)
+    {
+        if ($request->status) {
+            $withdrawal = Withdrawal::with(['bank', 'user'])->where('status', $request->status)->paginate($request->per_page ?? 20);
+        } else {
+            $withdrawal = Withdrawal::with(['bank', 'user'])->paginate($request->per_page ?? 20);
+        }
+        return $this->success('Record retrieved', $withdrawal, 200);
+    }
+
+    public function updateWithdrawalStatus(Request $request, $id) 
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'status' => 'required|in:approved,declined',
+            ]);
+
+            if ($validator->fails()) {
+                return $this->error($validator->errors()->first(), 400);
+            }
+
+            $withdrawal = Withdrawal::findOrFail($id);
+            $withdrawal->update([
+                'status' => $request->status
+            ]);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }

@@ -104,6 +104,10 @@ Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function ()
         Route::patch('user/block/{id}', [AdminDashboardController::class, 'blockUser']);
         Route::get('user/{id}', [AdminDashboardController::class, 'singleUser']);
 
+        //withdrawal request
+        Route::get('withdrawal-request', [AdminDashboardController::class, 'withdrawalRequest']);
+        Route::patch('update-withdrawal-status/{id}', [AdminDashboardController::class, 'updateWithdrawalStatus']);
+
         Route::group(['prefix' => 'transactions'], function() {
             Route::get('/', [Transaction::class, 'index']);
             Route::get('special-bet', [Transaction::class, 'special_bet']);
