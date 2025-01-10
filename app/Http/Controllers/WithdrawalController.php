@@ -41,7 +41,7 @@ class WithdrawalController extends Controller
                 return $this->error($validator->errors()->first(), 400);
             }
 
-            if (!Hash::check($request->pin, Auth::user()->transaction_pin)) {
+            if (!Hash::check($request->transaction_pin, Auth::user()->transaction_pin)) {
                 return $this->error('Invalid transaction pin.', 400);
             }
             if ($request->amount <= 2000) {
