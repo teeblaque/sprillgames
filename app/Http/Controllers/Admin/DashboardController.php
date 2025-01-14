@@ -67,6 +67,19 @@ class DashboardController extends Controller
         }
     }
 
+    public function unblockUser(Request $request, $id)
+    {
+        try {
+            $user = User::findOrFail($id);
+            $user->update([
+                'isBlocked' => false
+            ]);
+            return $this->success('User unblocked successfully', $user, 200);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
     public function withdrawalRequest(Request $request)
     {
         if ($request->status) {
