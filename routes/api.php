@@ -102,6 +102,7 @@ Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function ()
         Route::get('analytics', [AdminDashboardController::class, 'index']);
         Route::get('users', [AdminDashboardController::class, 'users']);
         Route::patch('user/block/{id}', [AdminDashboardController::class, 'blockUser']);
+        Route::patch('user/unblock/{id}', [AdminDashboardController::class, 'unblockUser']);
         Route::get('user/{id}', [AdminDashboardController::class, 'singleUser']);
         Route::delete('user/{id}', [AdminDashboardController::class, 'deleteUser']);
 
