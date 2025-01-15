@@ -27,8 +27,6 @@ class WalletDebit
                 return $this->error('Invalid amount', 400);
             }
 
-            DB::beginTransaction();
-
             $wallet = Wallet::where('user_id', $data['user_id'])->lockForUpdate()->firstOrFail();
             $balance_before = (float)($wallet->balance_after);
             $balance_after = (float)($wallet->balance_after) - (float)($data['amount']);
@@ -56,9 +54,6 @@ class WalletDebit
                 'trans_group' => $data['trans_group'],
                 'is_active' =>  true,
             ]);
-
-            DB::commit();
-
              // Notification
             //  (new FundWalletNotificationService())->notify($transaction);
 
