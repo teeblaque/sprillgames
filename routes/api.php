@@ -83,6 +83,11 @@ Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function ()
             Route::post('/cancel/{id}', [WithdrawalController::class, 'cancel']);
         });
 
+        #Siru Payment
+        Route::group(['prefix' => 'siru'], function(){
+
+        });
+
         #Bet
         Route::group(['prefix' => 'bet'], function () {
             Route::post('special', [BetController::class, 'special']);

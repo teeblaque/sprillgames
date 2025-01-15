@@ -19,9 +19,13 @@ class WithdrawalController extends Controller
 {
     use ApiResponser;
 
-    public function index()
+    public function index(Request $request)
     {
-        $withdrawal = Withdrawal::with(['bank', 'user'])->where(['user_id' => Auth::id(), 'status' => 'pending'])->first();
+        if (isset($request->status)) {
+            $withdrawal = Withdrawal::with(['bank', 'user'])->where(['user_id' => Auth::id(), 'status' => $request->status])->paginate($request->per_page ?? 20);
+        } else {
+            $withdrawal = Withdrawal::with(['bank', 'user'])->where(['user_id' => Auth::id()])->paginate($request->per_page ?? 20);
+        }
         return $this->success('Record retrieved', $withdrawal, 200);
     }
 
