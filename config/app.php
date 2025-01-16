@@ -62,7 +62,7 @@ return [
     //siru
     'siru_base_url' => env('SIRU_BASE_URL'),
     'siru_secret_key' => env('SIRU_SECRET_KEY'),
-    'siru_merchant_id' => env('SIRU_MERCHANT_ID'),
+    'siru_client_id' => env('SIRU_CLIENT_ID'),
 
     /*
     |--------------------------------------------------------------------------
