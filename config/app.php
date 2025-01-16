@@ -59,6 +59,11 @@ return [
     'sprillgames_api_url' => env('SPRILLGAMES_BASE_URL'),
     'sprillgames_api_key' => env('SPRILLGAMES_API_KEY'),
 
+    //siru
+    'siru_base_url' => env('SIRU_BASE_URL'),
+    'siru_secret_key' => env('SIRU_SECRET_KEY'),
+    'siru_client_id' => env('SIRU_CLIENT_ID'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
