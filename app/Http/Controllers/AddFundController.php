@@ -194,7 +194,8 @@ class AddFundController extends Controller
     {
         try {
             $validator = Validator::make($request->input(), [
-                'amount' => 'required'
+                'amount' => 'required',
+                'provider' => 'required|in:paystack,siru'
             ]);
 
             if ($validator->fails()) {
@@ -210,6 +211,7 @@ class AddFundController extends Controller
                 'reference' => $refernce,
                 'amount' => $request->amount,
                 'status' => 'pending',
+                'provider' => $request->provider
             ]);
             if ($transaction) {
                 return $this->success('Reference generated', $transaction, 201);

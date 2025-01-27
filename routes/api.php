@@ -9,6 +9,7 @@ use App\Http\Controllers\BankController;
 use App\Http\Controllers\BetController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PredictController;
+use App\Http\Controllers\SirupaymentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\WithdrawalController;
@@ -85,7 +86,8 @@ Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function ()
 
         #Siru Payment
         Route::group(['prefix' => 'siru'], function(){
-
+            Route::post('initiate-payment', [SirupaymentController::class, 'initiate']);
+            Route::get('confirm-payment/{reference}', [SirupaymentController::class, 'confirm']);
         });
 
         #Bet
