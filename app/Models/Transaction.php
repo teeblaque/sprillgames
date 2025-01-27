@@ -10,7 +10,7 @@ class Transaction extends Model
 {
     use HasFactory;
     
-    protected $fillable = ['user_id', 'reference', 'amount', 'status', 'provider'];
+    protected $fillable = ['user_id', 'reference', 'amount', 'status', 'provider', 'provider_uuid'];
 
     public function user(): BelongsTo
     {
