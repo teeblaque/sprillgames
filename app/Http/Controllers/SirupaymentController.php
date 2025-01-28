@@ -36,7 +36,7 @@ class SirupaymentController extends Controller
                 'redirectUrl' => config('app.siru_redirect_url'),
                 'notifyUrl' => config('app.siru_notify_url'),
                 'amount' => [
-                    'amount' => $$transaction->amount * 100,
+                    'amount' => $transaction->amount * 100,
                     'currency' => 'NGN'
                 ],
                 'customer' => [
