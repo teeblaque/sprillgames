@@ -12,6 +12,7 @@ use App\Http\Controllers\PredictController;
 use App\Http\Controllers\SirupaymentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerificationController;
+use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\WithdrawalController;
 use App\Http\Middleware\BlockAccess;
 use App\Http\Middleware\CheckAdmin;
@@ -39,6 +40,9 @@ Route::group(['prefix' => 'auth'], function () {
         Route::post('resetPassword', [VerificationController::class, 'resetPassword']);
     });
 });
+
+#webhook
+Route::post('siru-webhook', [WebhookController::class, 'confirm_payment']);
 
 #authenticated route
 Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function () {

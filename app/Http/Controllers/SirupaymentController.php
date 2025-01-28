@@ -18,8 +18,7 @@ class SirupaymentController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'reference' => 'required|exists:transactions,reference',
-                'amount' => 'required',
+                'reference' => 'required|exists:transactions,reference'
             ]);
 
             if ($validator->fails()) {
@@ -37,7 +36,7 @@ class SirupaymentController extends Controller
                 'redirectUrl' => 'https://google.com',
                 'notifyUrl' => 'https://webhook.site/7e47a698-584a-4e10-bbf8-b24292d3f5bd',
                 'amount' => [
-                    'amount' => $request->amount * 100,
+                    'amount' => $$transaction->amount * 100,
                     'currency' => 'NGN'
                 ],
                 'customer' => [
