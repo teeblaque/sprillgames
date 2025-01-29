@@ -14,22 +14,22 @@ class WebhookController extends Controller
     public function confirm_payment(Request $request)
     {
         try {
-            $transaction = Transaction::where('reference', $request->payment->reference)->first();
+            $transaction = Transaction::where('reference', $request['payment']['reference'])->first();
             if (!$transaction) return;
 
-            if ($request->event == 'cancel') {
+            if ($request['event'] == 'cancel') {
                 $transaction->update([
-                    'status' => $request->payment->marking
+                    'status' => $request['payment']['marking']
                 ]);
-            }else if($request->event == 'confirm') {
+            }else if($request['event'] == 'confirm') {
                 $transaction->update([
-                    'status' => $request->payment->marking
+                    'status' => $request['payment']['marking']
                 ]);
 
                 $payload = [
                     'user_id' => $transaction->user_id,
-                    'reference' => $request->payment->marking,
-                    'amount' => $request->payment->amount->amount/100,
+                    'reference' => $request['payment']['marking'],
+                    'amount' => $request['payment']['amount']['amount']/100,
                     'gateway_response' => 'siru',
                     'payment_channel' => 'siru channel',
                     'ip_address' => null,
@@ -38,6 +38,7 @@ class WebhookController extends Controller
                 ];
                 (new WalletCredit())->createCredit($payload);
             }
+            return 'Done';
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
