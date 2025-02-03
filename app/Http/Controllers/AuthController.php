@@ -52,11 +52,11 @@ class AuthController extends Controller
             ]);
             Wallet::create(['user_id' => $user->id]);
 
-            if (!Newsletter::isSubscribed($request->email)) {
-                Newsletter::subscribe($request->email, [
-                    'FNAME' => $request->name
-                ]);
-            }
+            // if (!Newsletter::isSubscribed($request->email)) {
+            //     Newsletter::subscribe($request->email, [
+            //         'FNAME' => $request->name
+            //     ]);
+            // }
 
             VerifyAccount::dispatchAfterResponse($user, $otp);
             return $this->success('Otp sent to your mail, kindly verify your account', $user, 201);
