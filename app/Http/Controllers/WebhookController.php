@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SiruWebhook;
 use App\Models\Transaction;
 use App\Services\WalletCredit;
 use App\Traits\ApiResponser;
@@ -14,6 +15,10 @@ class WebhookController extends Controller
     public function confirm_payment(Request $request)
     {
         try {
+            $webhook = SiruWebhook::create([
+                'event' => $request['event'],
+                'result' => $request['payment']
+            ]);
             $transaction = Transaction::where('reference', $request['payment']['reference'])->first();
             if (!$transaction) return;
 

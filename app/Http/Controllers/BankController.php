@@ -29,6 +29,11 @@ class BankController extends Controller
                 return $this->error($validator->errors()->first(), 400);
             }
 
+            $checkBankExist = UserBank::where('user_id', Auth::id())->first();
+            if ($checkBankExist) {
+                return $this->error('You cannot add more than one payout method', 400);
+            }
+
             DB::beginTransaction();
             $paystack = new Paystack();
 
@@ -54,7 +59,7 @@ class BankController extends Controller
 
     public function index()
     {
-        $banks = UserBank::where(['user_id' => Auth::id(), 'provider' => 'commercial'])->get();
+        $banks = UserBank::where(['user_id' => Auth::id(), 'provider' => 'commercial'])->first();
         return $this->success('Bank retrieved', $banks);
     }
     
