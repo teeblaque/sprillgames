@@ -8,6 +8,7 @@ class TransactionSource
 {
     public const WALLET_TO_WALLET   = 'wallet_to_wallet';
     public const PAYSTACK = 'paystack';
+    public const SIRU = 'siru';
     public const WALLET_TO_PLAN     = 'wallet_to_plan';
     public const WALLET_TO_PRODUCT     = 'wallet_to_product';
     public const PLAN_TO_WALLET     = 'plan_to_wallet';

@@ -106,7 +106,7 @@ class WalletCredit
                 'trx_status' => TransactionStatus::SUCCCES,
                 'gateway_response' => $data['gateway_response'] ?? null,
                 'payment_channel' => $data['payment_channel'] ?? null,
-                'trx_source' => TransactionSource::PAYSTACK,
+                'trx_source' =>  $data['trx_source'] ?? TransactionSource::PAYSTACK,
                 'amount' =>  $data['amount'], // data must have
                 'balance_before' =>  $balance_before,
                 'balance_after' =>   $balance_after,

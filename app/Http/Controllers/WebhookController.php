@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\TransactionSource;
 use App\Models\SiruWebhook;
 use App\Models\Transaction;
 use App\Services\WalletCredit;
@@ -39,6 +40,7 @@ class WebhookController extends Controller
                     'payment_channel' => 'siru channel',
                     'ip_address' => null,
                     'domain' => 'siru',
+                    'trx_source' => TransactionSource::SIRU,
                     'narration' => 'Wallet funded from Siru'
                 ];
                 (new WalletCredit())->createCredit($payload);
