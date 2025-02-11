@@ -43,7 +43,7 @@ class DashboardController extends Controller
 
     public function transactions(Request $request)
     {
-        $transactions = WalletTransaction::where('user_id', Auth::id())->paginate($request->per_page ?? 20)->latest();
+        $transactions = WalletTransaction::where('user_id', Auth::id())->latest()->paginate($request->per_page ?? 20);
         return $this->success('Record retrieved', $transactions);
     }
 }
