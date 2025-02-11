@@ -14,7 +14,7 @@ class SiruService
             'client_secret' => config('app.siru_secret_key'),
         ];
 
-        $response = (new Client())->request('POST', 'https://api-staging.sirumobile.com/auth', [
+        $response = (new Client())->request('POST', config('app.siru_base_url').'/auth', [
             'body' => json_encode($params),
             'headers' => [
                 'Accept' => 'application/json',
