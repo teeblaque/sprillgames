@@ -30,12 +30,12 @@ class SirupaymentController extends Controller
                 return $this->success('Record not found', 400);
             }
 
-            // https://api.sprillgames.online/api/v1/siru-webhook
+
             $params = [
                 'reference' => $request->reference,
                 'country' => 'NG',
                 'redirectUrl' => config('app.siru_redirect_url'),
-                'notifyUrl' => 'https://webhook.site/cdcd2135-21d7-4f45-bf86-212c8cafb888',
+                'notifyUrl' => 'https://api.sprillgames.online/api/v1/siru-webhook',
                 'amount' => [
                     'amount' => $transaction->amount * 100,
                     'currency' => 'NGN'

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('siru_webhooks', function (Blueprint $table) {
             $table->id();
             $table->string('event');
-            $table->string('result');
+            $table->json('result');
             $table->timestamps();
         });
     }

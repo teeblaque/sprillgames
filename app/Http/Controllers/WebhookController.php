@@ -20,32 +20,32 @@ class WebhookController extends Controller
                 'event' => $request['event'],
                 'result' => $request['payment']
             ]);
-            $transaction = Transaction::where('reference', $request['payment']['reference'])->first();
-            if (!$transaction) return;
+            // $transaction = Transaction::where('reference', $request['payment']['reference'])->first();
+            // if (!$transaction) return;
 
-            if ($request['event'] == 'cancel') {
-                $transaction->update([
-                    'status' => $request['payment']['marking']
-                ]);
-            }else if($request['event'] == 'confirm') {
-                $transaction->update([
-                    'status' => $request['payment']['marking']
-                ]);
+            // if ($request['event'] == 'cancel') {
+            //     $transaction->update([
+            //         'status' => $request['payment']['marking']
+            //     ]);
+            // }else if($request['event'] == 'confirm') {
+            //     $transaction->update([
+            //         'status' => $request['payment']['marking']
+            //     ]);
 
-                $payload = [
-                    'user_id' => $transaction->user_id,
-                    'reference' => $request['payment']['marking'],
-                    'amount' => $request['payment']['amount']['amount']/100,
-                    'gateway_response' => 'siru',
-                    'payment_channel' => 'siru channel',
-                    'ip_address' => null,
-                    'domain' => 'siru',
-                    'trx_source' => TransactionSource::SIRU,
-                    'narration' => 'Wallet funded from Siru'
-                ];
-                (new WalletCredit())->createCredit($payload);
-            }
-            return 'Done';
+            //     $payload = [
+            //         'user_id' => $transaction->user_id,
+            //         'reference' => $request['payment']['marking'],
+            //         'amount' => $request['payment']['amount']['amount']/100,
+            //         'gateway_response' => 'siru',
+            //         'payment_channel' => 'siru channel',
+            //         'ip_address' => null,
+            //         'domain' => 'siru',
+            //         'trx_source' => TransactionSource::SIRU,
+            //         'narration' => 'Wallet funded from Siru'
+            //     ];
+            //     (new WalletCredit())->createCredit($payload);
+            // }
+            return $webhook;
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }

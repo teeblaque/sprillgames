@@ -19,6 +19,9 @@ use App\Http\Middleware\CheckAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+#webhook
+Route::post('siru-webhook', [WebhookController::class, 'confirm_payment']);
+
 #unauthentication route
 Route::group(['prefix' => 'auth'], function () {
     Route::post('login', [AuthController::class, 'login']);
@@ -40,9 +43,6 @@ Route::group(['prefix' => 'auth'], function () {
         Route::post('resetPassword', [VerificationController::class, 'resetPassword']);
     });
 });
-
-#webhook
-Route::post('siru-webhook', [WebhookController::class, 'confirm_payment']);
 
 #authenticated route
 Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function () {
