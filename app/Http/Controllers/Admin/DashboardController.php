@@ -80,15 +80,46 @@ class DashboardController extends Controller
         }
     }
 
+    // public function withdrawalRequest(Request $request)
+    // {
+    //     if ($request->status) {
+    //         $withdrawal = Withdrawal::with(['bank', 'user'])->where('status', $request->status)->paginate($request->per_page ?? 20);
+    //     } else {
+    //         $withdrawal = Withdrawal::with(['bank', 'user'])->paginate($request->per_page ?? 20);
+    //     }
+    //     return $this->success('Record retrieved', $withdrawal, 200);
+    // }
+
     public function withdrawalRequest(Request $request)
     {
-        if ($request->status) {
-            $withdrawal = Withdrawal::with(['bank', 'user'])->where('status', $request->status)->paginate($request->per_page ?? 20);
-        } else {
-            $withdrawal = Withdrawal::with(['bank', 'user'])->paginate($request->per_page ?? 20);
+        $query = Withdrawal::with(['bank', 'user']);
+
+        // Filter by status if provided
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
         }
+
+        // Apply search filter if a search request is passed
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('transaction_reference', 'ILIKE', "%{$request->search}%")
+                    ->orWhere('amount', 'ILIKE', "%{$request->search}%")
+                    ->orWhereHas('user', function ($userQuery) use ($request) {
+                        $userQuery->where('name', 'ILIKE', "%{$request->search}%")
+                            ->orWhere('email', 'ILIKE', "%{$request->search}%");
+                    })
+                    ->orWhereHas('bank', function ($bankQuery) use ($request) {
+                        $bankQuery->where('name', 'ILIKE', "%{$request->search}%")
+                            ->orWhere('account_number', 'ILIKE', "%{$request->search}%");
+                    });
+            });
+        }
+
+        $withdrawal = $query->paginate($request->per_page ?? 20);
+
         return $this->success('Record retrieved', $withdrawal, 200);
     }
+
 
     public function updateWithdrawalStatus(Request $request, $id)
     {

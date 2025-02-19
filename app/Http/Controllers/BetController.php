@@ -27,7 +27,21 @@ class BetController extends Controller
 
     public function oneBets(Request $request)
     {
-        $bets = OneBet::where('status', 'pending')->with('user')->paginate($request->per_page ?? 20);
+        $query = OneBet::where('status', 'pending')
+            ->where('user_id', Auth::id())
+            ->with('user');
+
+        // Apply search filter if a search request is passed
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('uuid', 'ILIKE', "%{$request->search}%")
+                    ->orWhere('status', 'ILIKE', "%{$request->search}%")
+                    ->orWhere('amount', 'ILIKE', "%{$request->search}%");
+            });
+        }
+
+        $bets = $query->paginate($request->per_page ?? 20);
+
         return $this->success('Record retrieved', $bets);
     }
 
@@ -242,10 +256,27 @@ class BetController extends Controller
 
     public function transactions(Request $request)
     {
-        if (!$request->bet_type)
+        if (!$request->bet_type) {
             return $this->error('Bet type is required');
+        }
 
-        $transactions = WalletTransaction::where(['user_id' => Auth::id(), 'trans_group' => $request->bet_type])->paginate($request->per_page ?? 20);
+        $query = WalletTransaction::where([
+            'user_id' => Auth::id(),
+            'trans_group' => $request->bet_type,
+        ]);
+
+        // Apply search filter if a search request is passed
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('trx_reference', 'ILIKE', "%{$request->search}%")
+                    ->orWhere('trx_source', 'ILIKE', "%{$request->search}%")
+                    ->orWhere('created_at', 'ILIKE', "%{$request->search}%")
+                    ->orWhere('gateway_response', 'ILIKE', "%{$request->search}%");
+            });
+        }
+
+        $transactions = $query->paginate($request->per_page ?? 20);
+
         return $this->success('Record retrieved', $transactions);
     }
 }
