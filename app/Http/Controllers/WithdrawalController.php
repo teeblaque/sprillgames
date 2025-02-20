@@ -76,7 +76,7 @@ class WithdrawalController extends Controller
             }
 
             $bank = UserBank::where('user_id', Auth::id())->first();
-            if ($bank) {
+            if (!$bank) {
                 return $this->error('Kindly set a payout account', 400);
             }
 
