@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\UserBank;
 use App\Models\Wallet;
 use App\Models\Withdrawal;
 use App\Services\BankAccount\AccountDebit;
@@ -35,7 +37,7 @@ class WithdrawalController extends Controller
             DB::beginTransaction();
 
             $validator = Validator::make($request->all(), [
-                'user_bank_id' => 'required|exists:user_banks,id',
+                'user_bank_id' => 'nullable|exists:user_banks,id',
                 'amount' => 'required',
                 'remark' => 'nullable',
                 'transaction_pin' => 'required'
@@ -73,9 +75,14 @@ class WithdrawalController extends Controller
                 return $this->error('Could not process withdrawal, contact support!!!', 400);
             }
 
+            $bank = UserBank::where('user_id', Auth::id())->first();
+            if ($bank) {
+                return $this->error('Kindly set a payout account', 400);
+            }
+
             $withdrawal = Withdrawal::create([
                 'user_id' => Auth::id(),
-                'user_bank_id' => $request->user_bank_id,
+                'user_bank_id' => $bank->id,
                 'amount' => $request->amount,
                 'remark' => $request->remark,
                 'status' => 'pending'

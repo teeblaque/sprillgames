@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Bet;
 use App\Models\OneBet;
+use App\Models\Paystack;
 use App\Models\Predict;
 use App\Models\User;
+use App\Models\UserBank;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
 use App\Models\Withdrawal;
@@ -15,6 +17,8 @@ use App\Services\WalletCredit;
 use App\Services\WalletDebit;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class DashboardController extends Controller
@@ -133,11 +137,15 @@ class DashboardController extends Controller
                 return $this->error($validator->errors()->first(), 400);
             }
 
+            DB::beginTransaction();
+
             $withdrawal = Withdrawal::findOrFail($id);
-            $withdrawal->update([
-                'status' => $request->status,
-                'remark' => $request->remark
-            ]);
+
+            if ($request->status == 'approved') {
+                $bank = UserBank::where('user_id', Auth::id())->first();
+                $paystack = new Paystack();
+                $tx = $paystack->createTransfer($bank, $withdrawal->amount);
+            }
 
             if ($request->status == 'declined') {
                 $reference = (new GenerateReferenceService())->generateReference();
@@ -155,8 +163,17 @@ class DashboardController extends Controller
                     return $this->error('Could not process withdrawal, contact support!!!', 400);
                 }
             }
+
+            $withdrawal->update([
+                'status' => $request->status,
+                'remark' => $request->remark
+            ]);
+
+
+            DB::commit();
             return $this->success('Withdrawal request updated successfully', [], 200);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return $this->error($th->getMessage(), 500);
         }
     }
