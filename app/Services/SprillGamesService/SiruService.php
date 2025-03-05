@@ -5,8 +5,7 @@ namespace App\Services\SprillGamesService;
 use GuzzleHttp\Client;
 
 class SiruService
-{
-
+{ 
     public function siruAuth()
     {
         $params = [

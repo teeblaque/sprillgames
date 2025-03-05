@@ -28,7 +28,7 @@ class BetController extends Controller
     public function oneBets(Request $request)
     {
         $query = OneBet::where('status', 'pending')
-            ->where('user_id', Auth::id())
+            // ->where('user_id', Auth::id())
             ->with('user');
 
         // Apply search filter if a search request is passed

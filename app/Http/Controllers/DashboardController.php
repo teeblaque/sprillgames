@@ -21,8 +21,8 @@ class DashboardController extends Controller
         $lost = WalletTransaction::where(['user_id' => Auth::id(), 'trx_type' => TransactionType::DEBIT])->count();
         $onebetwagered = OneBet::where('user_id', Auth::id())->sum('amount');
         $specialwagered = Bet::where('user_id', Auth::id())->sum('amount');
-        $one_bet_wins = OneBet::where('user_id', Auth::id())->sum('amount_earned');
-        $special_bet_wins = Bet::where('user_id', Auth::id())->sum('amount_earned');
+        $one_bet_wins = OneBet::where('user_id', Auth::id())->where('status', '!=', 'failed')->sum('amount_earned');
+        $special_bet_wins = Bet::where('user_id', Auth::id())->where('status', '!=', 'failed')->sum('amount_earned');
 
         $special = [
             'total_wins' => Bet::where(['user_id' => Auth::id(), 'status' => 'successful'])->sum('amount_earned'),
