@@ -59,6 +59,7 @@ class PredictController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
+                'wallet_type' => 'required|in:real,bonus',
                 'values' => 'required|array',
                 'amount' => 'required|numeric|min:50|max:500000',
             ], [
@@ -95,7 +96,8 @@ class PredictController extends Controller
                     'gateway_response' => 'wallet',
                     'payment_channel' => 'wallet',
                     'narration' => 'Bet fee (PREDICT & WIN)',
-                    'trx_source' => 'Wallet'
+                    'trx_source' => 'Wallet',
+                    'wallet_type' => $request->wallet_type
                 ];
                 (new WalletDebit())->debit($payload);
 

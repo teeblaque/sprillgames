@@ -51,6 +51,7 @@ class BetController extends Controller
             $success = false;
             $validator = Validator::make($request->all(), [
                 'amount' => 'required|numeric|min:50|max:500000',
+                'wallet_type' => 'required|in:real,bonus',
                 'values' => 'required|array|min:2|max:2'
             ], [
                 'amount.min' => 'The minimum amount you can stake is N50',
@@ -94,8 +95,9 @@ class BetController extends Controller
                     'trans_group' => TransactionGroup::SPECIAL_BET,
                     'gateway_response' => 'wallet',
                     'payment_channel' => 'wallet',
-                    'narration' => 'Your special bet didnt go as planned',
-                    'trx_source' => 'Wallet'
+                    'narration' => 'Your special bet didnt go as planned and deducted from ' .$request->wallet_type,
+                    'trx_source' => 'Wallet',
+                    'wallet_type' => $request->wallet_type
                 ];
                 (new WalletDebit())->debit($payload);
             } else {
@@ -108,7 +110,8 @@ class BetController extends Controller
                     'payment_channel' => 'wallet',
                     'ip_address' => null,
                     'domain' => null,
-                    'narration' => 'Your special bet was successful'
+                    'narration' => 'Your special bet was successful and deducted from ' .$request->wallet_type,
+                    'wallet_type' => $request->wallet_type
                 ];
                 (new WalletCredit())->createCredit($payload);
             }
@@ -135,6 +138,7 @@ class BetController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
+                'wallet_type' => 'required|in:real,bonus',
                 'initial_value' => 'required|numeric|in:1,2',
                 'amount' => 'required|numeric|min:50|max:500000',
             ], [
@@ -170,7 +174,8 @@ class BetController extends Controller
                     'gateway_response' => 'wallet',
                     'payment_channel' => 'wallet',
                     'narration' => 'Bet fee (ONE-ON-ONE)',
-                    'trx_source' => 'Wallet'
+                    'trx_source' => 'Wallet',
+                    'wallet_type' => $request->wallet_type
                 ];
                 (new WalletDebit())->debit($payload);
 

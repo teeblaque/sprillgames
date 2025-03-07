@@ -189,4 +189,32 @@ class DashboardController extends Controller
             return $this->error($th->getMessage(), 500);
         }
     }
+
+    public function balance_correction(Request $request, $id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'correction_type' => 'required|in:up,down',
+                'amount' => 'required'
+            ]);
+
+            if ($validator->fails()) {
+                return $this->error($validator->errors()->first(), 400);
+            }
+
+            if ($request->amount < 0) {
+                return $this->error('Amount must be greater than 0');
+            }
+
+            $wallet = Wallet::where('user_id', $id)->first();
+            if (!$wallet) return $this->error('User wallet not found');
+
+            $wallet->update([
+                'bonus_balance' => $request->correction_type == 'up' ? $wallet->bonus_balance + $request->amount : $wallet->bonus_balance - $request->amount
+            ]);
+            return $this->success('Bonus account updated successfully');
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
 }

@@ -20,6 +20,7 @@ class Wallet extends Model
         'balance_before',
         'balance_after',
         'user_id',
+        'bonus_balance',
         'is_active',
         'is_locked',
     ];
@@ -34,6 +35,7 @@ class Wallet extends Model
         'is_locked' => 'boolean',
         'balance_before' => 'float',
         'balance_after' => 'float',
+        'bonus_balance' => 'float'
     ];
 
     public function user()

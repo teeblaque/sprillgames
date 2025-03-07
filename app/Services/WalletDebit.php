@@ -21,20 +21,29 @@ class WalletDebit
     /**
      * Credit user wallet.
      */
-    public function debit($data){
-        try{
+    public function debit($data)
+    {
+        try {
             if ($data['amount'] <= 0) {
                 return $this->error('Invalid amount', 400);
             }
 
             $wallet = Wallet::where('user_id', $data['user_id'])->lockForUpdate()->firstOrFail();
             $balance_before = (float)($wallet->balance_after);
-            $balance_after = (float)($wallet->balance_after) - (float)($data['amount']);
+            $bonus_balance = (float)($wallet->bonus_balance);
+            $balance_after = $data['wallet_type'] == 'real'
+                ? (float)($wallet->balance_after) - (float)($data['amount'])
+                : $bonus_balance - (float)($data['amount']);
+
             $reference = ($data['reference']) ??  (new GenerateReferenceService())->generateReference();
 
             // update balance_before and balance_after for wallet
-            $wallet->balance_before  =  $balance_before;
-            $wallet->balance_after = $balance_after;
+            if ($data['wallet_type'] == 'real') {
+                $wallet->balance_before  =  $balance_before;
+                $wallet->balance_after = $balance_after;
+            }else{
+                $wallet->bonus_balance  =  $balance_after;
+            }
             $wallet->save();
 
             $transaction = WalletTransaction::create([
@@ -54,22 +63,23 @@ class WalletDebit
                 'trans_group' => $data['trans_group'],
                 'is_active' =>  true,
             ]);
-             // Notification
+            // Notification
             //  (new FundWalletNotificationService())->notify($transaction);
 
-            $msg = "Wallet ".$wallet->id ?? null." has been debited successfully for user ".$data['user_id'] ?? null;
+            $msg = "Wallet " . $wallet->id ?? null . " has been debited successfully for user " . $data['user_id'] ?? null;
             // info($msg);
 
             $msg = "Approved or completed successfully.";
             return $transaction;
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             $msg = $e->getMessage();
             return $this->error($msg, 400);
         }
     }
 
-    public function debitAdmin($data){
-        try{
+    public function debitAdmin($data)
+    {
+        try {
             DB::beginTransaction();
 
             $wallet = Wallet::where('user_id', $data['user_id'])->lockForUpdate()->firstOrFail();
@@ -101,7 +111,7 @@ class WalletDebit
 
             DB::commit();
 
-             // Notification
+            // Notification
             //  (new FundWalletNotificationService())->notify($transaction);
 
             // $msg = "Wallet ".$wallet->id ?? null." has been debited successfully for user ".$data['user_id'] ?? null;
@@ -109,7 +119,7 @@ class WalletDebit
 
             $msg = "Approved or completed successfully.";
             return $transaction;
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             $msg = $e->getMessage();
             return $this->error($msg, 400);
         }
@@ -118,7 +128,8 @@ class WalletDebit
     /**
      * Check users wallet balance if amount is available
      */
-    public function balanceCheck($amount, $userId = null){
+    public function balanceCheck($amount, $userId = null)
+    {
         if ($amount <= 0) {
             return false;
         }
@@ -126,7 +137,7 @@ class WalletDebit
         $user = Auth::user();
         $id = $userId ?? $user->id;
         $wallet = Wallet::where('user_id', $id)->lockForUpdate()->first();
-        if(!$wallet){
+        if (!$wallet) {
             $wallet = Wallet::create([
                 'uuid' => uniqid(),
                 'user_id' => $id,
@@ -135,7 +146,7 @@ class WalletDebit
             $wallet->refresh();
         }
 
-        if(($wallet->balance_after > 1 && $wallet->balance_after >= $amount)) {
+        if (($wallet->balance_after > 1 && $wallet->balance_after >= $amount)) {
             return true;
         }
 
@@ -145,14 +156,15 @@ class WalletDebit
     /**
      * Check users wallet balance if amount is available
      */
-    public function userBalanceCheck($amount, $user_id){
+    public function userBalanceCheck($amount, $user_id)
+    {
         if ($amount <= 0) {
             return false;
         }
 
         $wallet = Wallet::where('user_id', $user_id)->lockForUpdate()->firstOrFail();
 
-        if(($wallet->balance_after > 1 && $wallet->balance_after >= $amount)) {
+        if (($wallet->balance_after > 1 && $wallet->balance_after >= $amount)) {
             return true;
         }
 

@@ -27,11 +27,14 @@ class AddFundController extends Controller
                 return $this->error($validator->errors()->first(), 400);
             }
 
+
             $checkTransaction = Transaction::where('reference', $request->reference)->first();
             if(!$checkTransaction) return $this->error('Invalid payment reference', 400);
 
+
             $paystack = new Paystack;
             $tx = $paystack->verifyTransaction($request->reference);
+            dd($tx);
             if ($tx->status) {
                 $paymentData = $tx->data;
                 $paymentStatus = $paymentData->status;
