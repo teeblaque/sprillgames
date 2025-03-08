@@ -54,23 +54,23 @@ function sendVerOTP($params)
 {
     $curl = curl_init();
     $data = array(
-        "api_key" => "TLJVIQLqafvCIl7iJiG5aHqXAh1EE78DO0Lc5T1GLZBFozcP2PC4AlFRhhZvtU",
+        "api_key" => "TLYvabLARztFywqIFzWfQCKeQwdoDVHlZFsllkOOBWKwlztbiAUSXoavLLVyMc",
         "message_type" => "NUMERIC",
         "to" => $params['phone_number'],
-        "from" => "N-Alert",
+        "from" => "HallaBet",
         "channel" => "dnd",
         "pin_attempts" => 1,
         "pin_time_to_live" =>  5,
         "pin_length" => 6,
         "pin_placeholder" => "< 1234 >",
-        "message_text" => 'Your verification code is < 1234 >',
+        "message_text" => 'Your sprillgames verification code is < 1234 >',
         "pin_type" => "NUMERIC"
     );
 
     $post_data = json_encode($data);
 
     curl_setopt_array($curl, array(
-        CURLOPT_URL => "https://api.ng.termii.com/api/sms/otp/send",
+        CURLOPT_URL => "https://v3.api.termii.com/api/sms/otp/send",
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => "",
         CURLOPT_MAXREDIRS => 10,
@@ -93,7 +93,7 @@ function sendVerOTP($params)
 function sendOTPEmail($params)
 {
     $curl = curl_init();
-    $data = array("email_address" => $params['email'], "code" => $params['otp'], "api_key" => "TLJVIQLqafvCIl7iJiG5aHqXAh1EE78DO0Lc5T1GLZBFozcP2PC4AlFRhhZvtU",  "email_configuration_id" => "2812f36a-8b14-4b8c-a3cb-78f4d359aaf0");
+    $data = array("email_address" => $params['email'], "code" => $params['otp'], "api_key" => "TLYvabLARztFywqIFzWfQCKeQwdoDVHlZFsllkOOBWKwlztbiAUSXoavLLVyMc",  "email_configuration_id" => "2812f36a-8b14-4b8c-a3cb-78f4d359aaf0");
 
     $post_data = json_encode($data);
 
@@ -122,7 +122,7 @@ function verifyToken($params)
 {
     $curl = curl_init();
     $data = array(
-        "api_key" => "TLJVIQLqafvCIl7iJiG5aHqXAh1EE78DO0Lc5T1GLZBFozcP2PC4AlFRhhZvtU",
+        "api_key" => "TLYvabLARztFywqIFzWfQCKeQwdoDVHlZFsllkOOBWKwlztbiAUSXoavLLVyMc",
         "pin_id" => $params['pin_id'],
         "pin" => $params['pin'],
     );
@@ -1179,27 +1179,3 @@ if (!function_exists('validator')) {
         return $factory->make($data, $rules, $messages, $customAttributes);
     }
 }
-
-// if (! function_exists('view')) {
-//     /**
-//      * Get the evaluated view contents for the given view.
-//      *
-//      * @param  string|null  $view
-//      * @param  \Illuminate\Contracts\Support\Arrayable|array  $data
-//      * @param  array  $mergeData
-//      * @return \Illuminate\Contracts\View\View|\Illuminate\Contracts\View\Factory
-//      */
-//     function view($view = null, $data = [], $mergeData = [])
-//     {
-//         $factory = app(ViewFactory::class);
-
-//         if (func_num_args() === 0) {
-//             return $factory;
-//         }
-
-//         return $factory->make($view, $data, $mergeData);
-//     }
-
-     
-
-// }

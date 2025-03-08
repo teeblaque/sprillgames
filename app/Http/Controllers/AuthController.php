@@ -36,6 +36,7 @@ class AuthController extends Controller
                 return $this->error($validator->errors()->first(), 400);
             }
 
+
             $user = User::where('phone', $this->getPhoneNumberWithDialingCode($request->phone, ''))->first();
             if($user) return $this->error('Phone number is already taken');
             
@@ -52,14 +53,25 @@ class AuthController extends Controller
             ]);
             Wallet::create(['user_id' => $user->id]);
 
-            // if (!Newsletter::isSubscribed($request->email)) {
-            //     Newsletter::subscribe($request->email, [
-            //         'FNAME' => $request->name
-            //     ]);
-            // }
+            if (!Newsletter::isSubscribed($request->email)) {
+                Newsletter::subscribe($request->email, [
+                    'FNAME' => $request->name
+                ]);
+            }
 
-            VerifyAccount::dispatchAfterResponse($user, $otp);
-            return $this->success('Otp sent to your mail, kindly verify your account', $user, 201);
+            // VerifyAccount::dispatchAfterResponse($user, $otp);
+            $params = [
+                'phone_number' => $this->getPhoneNumberWithDialingCode($request->phone, '+234'),
+                'email' => $request->email,
+                'otp' => $otp
+            ];
+
+            $response = sendVerOTP($params);
+
+            $success['user'] =  $user;
+            $success['phone_code'] = $response;
+
+            return $this->success('User Registration was successful.', $success, 200);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
@@ -73,7 +85,7 @@ class AuthController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'email' => 'required|string|exists:users,email',
+                'phone' => 'required|string|exists:users,phone',
                 'password' => 'required|string'
             ]);
 
@@ -81,11 +93,12 @@ class AuthController extends Controller
                 return $this->error($validator->errors()->first(), 400);
             }
 
-            if (is_numeric($request->get('email'))) {
-                $credentials = ['phone' => $request->get('email'), 'password' => $request->get('password')];
-            } else {
-                $credentials = $request->only($this->username(), 'password');
-            }
+            // if (is_numeric($request->get('email'))) {
+            //     $credentials = ['phone' => $request->get('email'), 'password' => $request->get('password')];
+            // } else {
+            //     $credentials = $request->only($this->username(), 'password');
+            // }
+            $credentials = $request->only($this->username(), 'password');
 
             if (!Auth::attempt($credentials)) {
                 return $this->error('Credential mismatch', 400);
@@ -103,12 +116,17 @@ class AuthController extends Controller
             }
 
             if ($user && !$user->isVerified) {
-                $otp = generateOtp();
+                // $otp = generateOtp();
 
-                $user->update([
-                    'otp' => $otp
-                ]);
-                VerifyAccount::dispatchAfterResponse($user, $otp);
+                // $user->update([
+                //     'otp' => $otp
+                // ]);
+                // VerifyAccount::dispatchAfterResponse($user, $otp);
+                $params = [
+                    'phone_number' => $this->getPhoneNumberWithDialingCode($user->phone, '+234'),
+                ];
+
+                sendVerOTP($params);
 
                 return $this->error('Kindly verify your account', 401);
             }
@@ -128,7 +146,7 @@ class AuthController extends Controller
 
     public function username()
     {
-        return 'email';
+        return 'phone';
     }
 
     public function logout(Request $request)

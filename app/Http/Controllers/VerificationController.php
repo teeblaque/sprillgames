@@ -21,20 +21,32 @@ class VerificationController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'otp' => 'required|string|exists:users,otp',
-                'email' => 'required|string|exists:users,email'
+                'pin_id' => 'required',
+                'pin' => 'required',
+                'email' => 'required',
             ]);
 
             if ($validator->fails()) {
                 return $this->error($validator->errors()->first(), 400);
             }
 
-            User::where('email', $request->email)->update([
-                'otp' => null,
-                'isVerified' => true,
-                'email_verified_at' => Carbon::now()
-            ]);
-            return $this->success('Account verified successfully!', '', 200);
+            $params = [
+                'pin' => $request->pin,
+                'pin_id' => $request->pin_id
+            ];
+            $verifyToken = verifyToken($params);
+            if (!$verifyToken && !$verifyToken->verified) {
+                return $this->error($verifyToken->verified, 400);
+            }
+            $user = User::where('email', $request->email)->first();
+            if ($user) {
+                $user->update([
+                    'isVerified' => true,
+                    'email_verified_at' => Carbon::now(),
+                    'otp' => null,
+                ]);
+            }
+            return $this->success('Account verified successfully', $verifyToken->verified, 200);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
@@ -51,20 +63,26 @@ class VerificationController extends Controller
                 return $this->error($validator->errors()->first(), 400);
             }
 
-            //generate otp function
-            $otp = generateOtp();
+            // //generate otp function
+            // $otp = generateOtp();
 
             $user = User::where('email', $request->email)->first();
-            if ($user) {
-                $user->update([
-                    'otp' => $otp
-                ]);
-
-                Mail::to($user->email)->send(new SendRequestPasswordMail($user, $otp));
-
-                return $this->success('OTP sent successfully!', ['token' => $otp], 200);
-            }else{
+            if (!$user) {
                 return $this->error('User with email was not found', 400);
+            }
+
+            $params = [
+                'phone_number' => $this->getPhoneNumberWithDialingCode($user->phone, '+234'),
+            ];
+
+            $response = sendVerOTP($params);
+            if (isset($response->smsStatus) && $response->smsStatus == "Message Sent") {
+                return $this->success('We have sent a token to your phone number', $response, 200);
+            } else {
+                if ($response->message == 'Insufficient balance') {
+                    return $this->error('Service unavailable, try again!!!', 400);
+                }
+                return $this->error($response->message, 400);
             }
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
@@ -91,7 +109,6 @@ class VerificationController extends Controller
                 'password' => Hash::make($request->password),
             ]);
             return $this->success('Password reset successfully!', null, 200);
-
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
@@ -114,7 +131,6 @@ class VerificationController extends Controller
                 'password' => Hash::make($request->password),
             ]);
             return $this->success('Password reset successfully!', null, 200);
-
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
