@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
-// use Spatie\Newsletter\Facades\Newsletter;
+use Spatie\Newsletter\Facades\Newsletter;
 // use NewsLetter;
 
 class AuthController extends Controller
