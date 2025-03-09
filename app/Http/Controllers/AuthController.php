@@ -22,7 +22,7 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        try {
+        // try {
             $validator = Validator::make($request->all(), [
                 'phone' => 'required|unique:users,phone',
                 'username' => 'required|unique:users,username',
@@ -72,9 +72,9 @@ class AuthController extends Controller
             $success['phone_code'] = $response;
 
             return $this->success('User Registration was successful.', $success, 200);
-        } catch (\Throwable $th) {
-            return $this->error($th->getMessage(), 500);
-        }
+        // } catch (\Throwable $th) {
+        //     return $this->error($th->getMessage(), 500);
+        // }
     }
 
     /**
