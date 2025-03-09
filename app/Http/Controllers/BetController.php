@@ -120,9 +120,9 @@ class BetController extends Controller
                 'user_id' => Auth::id(),
                 'amount' => $request->amount,
                 'values' => $request->values,
-                'amount_earned' => $request->amount * 200,
+                'amount_earned' => $request->amount * 500,
                 'system_value' => $randomNumbers,
-                'odds' => 200,
+                'odds' => 500,
                 'status' => $success ? 'successful' : 'failed'
             ]);
 
@@ -160,8 +160,8 @@ class BetController extends Controller
                 'user_id' => Auth::id(),
                 'initial_value' => $request->initial_value,
                 'amount' => $request->amount,
-                'amount_earned' => $request->amount * 200,
-                'odds' => 200,
+                'amount_earned' => $request->amount * 500,
+                'odds' => 500,
             ]);
 
             if ($onebet) {
