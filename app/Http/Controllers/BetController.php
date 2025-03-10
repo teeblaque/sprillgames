@@ -193,6 +193,13 @@ class BetController extends Controller
     public function joinBet(Request $request, $id)
     {
         try {
+            $validator = Validator::make($request->all(), [
+                'wallet_type' => 'required|in:real,bonus',
+            ]);
+
+            if ($validator->fails()) {
+                return $this->error($validator->errors()->first(), 400);
+            }
             DB::beginTransaction();
             $bet = OneBet::findOrFail($id);
 
