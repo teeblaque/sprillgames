@@ -208,7 +208,7 @@ class BetController extends Controller
                     'payment_channel' => 'wallet',
                     'ip_address' => null,
                     'domain' => null,
-                    'narration' => 'Your special bet was successful'
+                    'narration' => 'Your special bet was successful',
                 ];
                 (new WalletCredit())->createCredit($payload);
 
@@ -221,7 +221,8 @@ class BetController extends Controller
                     'payment_channel' => 'wallet',
                     'ip_address' => null,
                     'domain' => null,
-                    'narration' => 'Your one on one bet was not successful'
+                    'narration' => 'Your one on one bet was not successful',
+                    'wallet_type' => $request->wallet_type
                 ];
                 (new WalletDebit())->debit($payload);
 
