@@ -70,7 +70,7 @@ function sendVerOTP($params)
     $post_data = json_encode($data);
 
     curl_setopt_array($curl, array(
-        CURLOPT_URL => "https://v3.api.termii.com/api/sms/otp/send",
+        CURLOPT_URL => "https://api.termii.com/api/sms/otp/send",
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => "",
         CURLOPT_MAXREDIRS => 10,
@@ -130,7 +130,7 @@ function verifyToken($params)
     $post_data = json_encode($data);
 
     curl_setopt_array($curl, array(
-        CURLOPT_URL => "https://v3.api.termii.com/api/sms/otp/verify",
+        CURLOPT_URL => "https://api.termii.com/api/sms/otp/verify",
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => "",
         CURLOPT_MAXREDIRS => 10,
