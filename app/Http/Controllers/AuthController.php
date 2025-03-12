@@ -38,8 +38,8 @@ class AuthController extends Controller
 
 
             $user = User::where('phone', $this->getPhoneNumberWithDialingCode($request->phone, ''))->first();
-            if($user) return $this->error('Phone number is already taken');
-            
+            if ($user) return $this->error('Phone number is already taken');
+
             $otp = generateOtp();
             $user = User::create([
                 'phone' => $this->getPhoneNumberWithDialingCode($request->phone, ''),
@@ -47,7 +47,7 @@ class AuthController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'name' => $request->name,
-                'role' =>'user',
+                'role' => 'user',
                 'otp' => $otp,
                 'referred_code' => $request->referred_code
             ]);
@@ -125,12 +125,17 @@ class AuthController extends Controller
                 $params = [
                     'phone_number' => $this->getPhoneNumberWithDialingCode($user->phone, '+234'),
                 ];
-
-                sendVerOTP($params);
-
-                return $this->error('Kindly verify your account', 401);
+                $response = sendVerOTP($params);
+                if (isset($response->smsStatus) && $response->smsStatus == "Message Sent") {
+                    return $this->success('We have sent a token to your phone number', $response, 200);
+                } else {
+                    if ($response->message == 'Insufficient balance') {
+                        return $this->error('Service unavailable, try again!!!', 400);
+                    }
+                    return $this->error($response->message, 400);
+                }
             }
-            
+
             Mail::to($user->email)->send(new SendLoginNotifictionMail($user));
 
             $success['access_token'] =  $user->createToken('access_token')->plainTextToken;
@@ -164,7 +169,7 @@ class AuthController extends Controller
         $userapp = Auth::user();
         // Delete all existing tokens for the user
         $userapp->tokens()->delete();
-        
+
         $user = User::where('id', $userapp->id)->with(['wallet'])->first();
         if ($user && $user->isBlocked) {
             return $this->error('Account blocked, contact support!!!', 400);
