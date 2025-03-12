@@ -98,7 +98,7 @@ class AuthController extends Controller
             // } else {
             //     $credentials = $request->only($this->username(), 'password');
             // }
-            $credentials = $request->only($this->getPhoneNumberWithDialingCode($request->phone, ''), 'password');
+            $credentials = $request->only($this->username(), 'password');
 
             if (!Auth::attempt($credentials)) {
                 return $this->error('Credential mismatch', 400);
