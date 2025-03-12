@@ -85,7 +85,7 @@ class AuthController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'phone' => 'required|string|exists:users,phone',
+                'phone' => 'required',
                 'password' => 'required|string'
             ]);
 
@@ -98,7 +98,7 @@ class AuthController extends Controller
             // } else {
             //     $credentials = $request->only($this->username(), 'password');
             // }
-            $credentials = $request->only($this->username(), 'password');
+            $credentials = $request->only($this->getPhoneNumberWithDialingCode($request->phone, ''), 'password');
 
             if (!Auth::attempt($credentials)) {
                 return $this->error('Credential mismatch', 400);

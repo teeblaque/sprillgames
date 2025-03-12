@@ -35,8 +35,8 @@ class VerificationController extends Controller
                 'pin_id' => $request->pin_id
             ];
             $verifyToken = verifyToken($params);
-            if (!$verifyToken && !$verifyToken->verified) {
-                return $this->error($verifyToken->verified, 400);
+            if (!$verifyToken || $verifyToken->verified != true) {
+                return $this->error('OTP verification was not successful, try again', 400);
             }
             $user = User::where('phone', $this->getPhoneNumberWithDialingCode($request->phone, ''))->first();
             if ($user) {
@@ -46,7 +46,7 @@ class VerificationController extends Controller
                     'otp' => null,
                 ]);
             }
-            return $this->success('Account verified successfully', $verifyToken->verified, 200);
+            return $this->success('Account verified successfully', [], 200);
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);
         }
