@@ -93,7 +93,7 @@ class VerificationController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'phone' => 'required|exists:users,phone',
+                'phone' => 'required',
                 'password' => 'required|string|min:8|confirmed',
             ]);
 
