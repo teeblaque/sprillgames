@@ -93,15 +93,14 @@ class VerificationController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'otp' => 'required|exists:users,otp',
-                'email' => 'required|exists:users,email',
+                'phone' => 'required|exists:users,phone',
                 'password' => 'required|string|min:8|confirmed',
             ]);
 
             if ($validator->fails()) {
                 return $this->error($validator->errors()->first(), 400);
             }
-            $user = User::where('otp', $request->otp)->where('email', $request->email)->first();
+            $user = User::where('phone', $this->getPhoneNumberWithDialingCode($request->phone, ''))->first();
             if (!$user) return $this->error('user record not found', 400);
 
             User::where('email', $user->email)->update([
