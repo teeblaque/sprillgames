@@ -59,7 +59,6 @@ class UserController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'pin' => 'required|string',
-                'otp' => 'required|string|exists:users,otp',
             ]);
 
             if ($validator->fails()) {
