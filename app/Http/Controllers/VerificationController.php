@@ -23,7 +23,7 @@ class VerificationController extends Controller
             $validator = Validator::make($request->all(), [
                 'pin_id' => 'required',
                 'pin' => 'required',
-                'email' => 'required',
+                'phone' => 'required',
             ]);
 
             if ($validator->fails()) {
@@ -38,7 +38,7 @@ class VerificationController extends Controller
             if (!$verifyToken && !$verifyToken->verified) {
                 return $this->error($verifyToken->verified, 400);
             }
-            $user = User::where('email', $request->email)->first();
+            $user = User::where('phone', $this->getPhoneNumberWithDialingCode($request->phone, ''))->first();
             if ($user) {
                 $user->update([
                     'isVerified' => true,
