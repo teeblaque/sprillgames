@@ -56,7 +56,7 @@ class VerificationController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'email' => 'required|string|exists:users,email'
+                'phone' => 'required'
             ]);
 
             if ($validator->fails()) {
@@ -66,9 +66,9 @@ class VerificationController extends Controller
             // //generate otp function
             // $otp = generateOtp();
 
-            $user = User::where('email', $request->email)->first();
+            $user = User::where('phone', $this->getPhoneNumberWithDialingCode($request->phone, ''))->first();
             if (!$user) {
-                return $this->error('User with email was not found', 400);
+                return $this->error('User with phone was not found', 400);
             }
 
             $params = [
