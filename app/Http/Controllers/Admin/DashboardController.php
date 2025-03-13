@@ -48,7 +48,11 @@ class DashboardController extends Controller
 
     public function users(Request $request)
     {
-        $users = User::with('wallet')->paginate($request->per_page ?? 20);
+        if ($request->search) {
+            $users = User::with('wallet')->where('first_name', $request->search)->orWhere('last_name', $request->search)->paginate($request->per_page ?? 20);
+        }else{
+            $users = User::with('wallet')->paginate($request->per_page ?? 20);
+        }
         return $this->success('user retrived', $users, 200);
     }
 
