@@ -82,7 +82,7 @@ class DashboardController extends Controller
             $user = User::findOrFail($id);
             $user->update([
                 'isBlocked' => true,
-                'block_reason' => $request->block_reason
+                'block_reason' => $request->reason
             ]);
             return $this->success('User blocked successfully', $user, 200);
         } catch (\Throwable $th) {
