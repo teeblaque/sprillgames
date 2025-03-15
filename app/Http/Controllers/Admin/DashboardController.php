@@ -49,11 +49,17 @@ class DashboardController extends Controller
     public function users(Request $request)
     {
         if ($request->search) {
-            $users = User::with('wallet')->where('first_name', $request->search)->orWhere('last_name', $request->search)->paginate($request->per_page ?? 20);
+            $users = User::where('role', 'user')->with('wallet')->where('first_name', $request->search)->orWhere('last_name', $request->search)->paginate($request->per_page ?? 20);
         }else{
-            $users = User::with('wallet')->paginate($request->per_page ?? 20);
+            $users = User::where('role', 'user')->with('wallet')->paginate($request->per_page ?? 20);
         }
-        return $this->success('user retrived', $users, 200);
+        return $this->success('user retrieved', $users, 200);
+    }
+
+    public function adminUsers()
+    {
+        $users = User::where('role', '!=', 'user')->paginate($request->per_page ?? 20);
+        return $this->success('user retrieved', $users, 200);
     }
 
     public function singleUser($id)
@@ -65,9 +71,18 @@ class DashboardController extends Controller
     public function blockUser(Request $request, $id)
     {
         try {
+            $validator = Validator::make($request->all(), [
+                'reason' => 'required'
+            ]);
+
+            if ($validator->fails()) {
+                return $this->error($validator->errors()->first(), 400);
+            }
+
             $user = User::findOrFail($id);
             $user->update([
-                'isBlocked' => true
+                'isBlocked' => true,
+                'block_reason' => $request->block_reason
             ]);
             return $this->success('User blocked successfully', $user, 200);
         } catch (\Throwable $th) {

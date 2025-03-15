@@ -50,7 +50,12 @@ class UserController extends Controller
 
     public function transactionHistory(Request $request)
     {
-        $transactions = WalletTransaction::where('user_id', Auth::id())->latest()->paginate($request->limit ?? 20);
+        if ($request->transaction_type) {
+            $transactions = WalletTransaction::where('user_id', Auth::id())->where('trx_type', $request->transaction_type)->latest()->paginate($request->limit ?? 20);
+        } else {
+            $transactions = WalletTransaction::where('user_id', Auth::id())->latest()->paginate($request->limit ?? 20);
+        }
+        
         return $this->success('Record retrieved', $transactions);
     }
 

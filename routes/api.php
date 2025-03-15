@@ -112,6 +112,7 @@ Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function ()
     Route::group(['prefix' => 'admin', 'middleware' => [CheckAdmin::class]], function() {
         Route::get('analytics', [AdminDashboardController::class, 'index']);
         Route::get('users', [AdminDashboardController::class, 'users']);
+        Route::get('admin-users', [AdminDashboardController::class, 'adminUsers']);
         Route::patch('user/block/{id}', [AdminDashboardController::class, 'blockUser']);
         Route::patch('user/unblock/{id}', [AdminDashboardController::class, 'unblockUser']);
         Route::get('user/{id}', [AdminDashboardController::class, 'singleUser']);
