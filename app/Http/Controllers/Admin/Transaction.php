@@ -36,7 +36,7 @@ class Transaction extends Controller
         // Search filter
         if ($request->search) {
             $query->where(function ($q) use ($request) {
-                $q->where('reference', 'like', "%{$request->search}%")
+                $q->where('trx_reference', 'like', "%{$request->search}%")
                   ->orWhereHas('user', function ($q) use ($request) {
                       $q->where('name', 'like', "%{$request->search}%");
                   });

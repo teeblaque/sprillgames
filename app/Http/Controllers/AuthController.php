@@ -68,8 +68,16 @@ class AuthController extends Controller
 
             $response = sendVerOTP($params);
 
+            $credentials = $request->only($this->username(), 'password');
+
+            if (!Auth::attempt($credentials)) {
+                return $this->error('Credential mismatch', 400);
+            }
+
             $success['user'] =  $user;
             $success['phone_code'] = $response;
+            $success['refresh_token'] =  $user->createToken('refresh_token')->plainTextToken;
+            $success['token_type'] = 'Bearer';
 
             return $this->success('User Registration was successful.', $success, 200);
         } catch (\Throwable $th) {
