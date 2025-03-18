@@ -33,6 +33,7 @@ Route::group(['prefix' => 'auth'], function () {
 
     #The OTP section
     Route::group(['prefix' => 'otp'], function () {
+        Route::get('send-to-admin', [VerificationController::class, 'sendToAdmin']);
         Route::post('resend', [VerificationController::class, 'resendOTP']);
         Route::post('validate', [VerificationController::class, 'validateOTP']);
     });

@@ -52,6 +52,27 @@ class VerificationController extends Controller
         }
     }
 
+    public function sendToAdmin(Request $request)
+    {
+        try {
+            $params = [
+                'phone_number' => $this->getPhoneNumberWithDialingCode('9036483270', '+234'),
+            ];
+
+            $response = sendVerOTP($params);
+            if (isset($response->smsStatus) && $response->smsStatus == "Message Sent") {
+                return $this->success('We have sent a token to admin phone', $response, 200);
+            } else {
+                if ($response->message == 'Insufficient balance') {
+                    return $this->error('Service unavailable, try again!!!', 400);
+                }
+                return $this->error($response->message, 400);
+            }
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
     public function resendOTP(Request $request)
     {
         try {
