@@ -37,12 +37,12 @@ class AuthController extends Controller
             }
 
 
-            $user = User::where('phone', $this->getPhoneNumberWithDialingCode($request->phone, ''))->first();
+            $user = User::where('phone', $request->phone)->first();
             if ($user) return $this->error('Phone number is already taken');
 
             $otp = generateOtp();
             $user = User::create([
-                'phone' => $this->getPhoneNumberWithDialingCode($request->phone, ''),
+                'phone' => $request->phone,
                 'username' => $request->username,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
@@ -68,14 +68,15 @@ class AuthController extends Controller
 
             $response = sendVerOTP($params);
 
-            // $credentials = $request->only($this->username(), 'password');
+            $credentials = $request->only($this->username(), 'password');
 
-            // if (!Auth::attempt($credentials)) {
-            //     return $this->error('Credential mismatch', 400);
-            // }
+            if (!Auth::attempt($credentials)) {
+                return $this->error('Credential mismatch', 400);
+            }
 
             $success['user'] =  $user;
             $success['phone_code'] = $response;
+            $success['access_token'] =  $user->createToken('access_token')->plainTextToken;
             $success['refresh_token'] =  $user->createToken('refresh_token')->plainTextToken;
             $success['token_type'] = 'Bearer';
 

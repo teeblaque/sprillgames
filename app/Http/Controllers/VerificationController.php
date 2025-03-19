@@ -38,7 +38,7 @@ class VerificationController extends Controller
             if (!$verifyToken || $verifyToken->verified != true) {
                 return $this->error('OTP verification was not successful, try again', 400);
             }
-            $user = User::where('phone', $this->getPhoneNumberWithDialingCode($request->phone, ''))->first();
+            $user = User::where('phone', $request->phone)->first();
             if ($user) {
                 $user->update([
                     'isVerified' => true,
@@ -87,7 +87,7 @@ class VerificationController extends Controller
             // //generate otp function
             // $otp = generateOtp();
 
-            $user = User::where('phone', $this->getPhoneNumberWithDialingCode($request->phone, ''))->first();
+            $user = User::where('phone', $request->phone)->first();
             if (!$user) {
                 return $this->error('User with phone was not found', 400);
             }
@@ -121,7 +121,7 @@ class VerificationController extends Controller
             if ($validator->fails()) {
                 return $this->error($validator->errors()->first(), 400);
             }
-            $user = User::where('phone', $this->getPhoneNumberWithDialingCode($request->phone, ''))->first();
+            $user = User::where('phone', $request->phone)->first();
             if (!$user) return $this->error('user record not found', 400);
 
             User::where('email', $user->email)->update([
