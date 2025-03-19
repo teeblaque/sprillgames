@@ -68,11 +68,11 @@ class AuthController extends Controller
 
             $response = sendVerOTP($params);
 
-            $credentials = $request->only($this->username(), 'password');
+            // $credentials = $request->only($this->username(), 'password');
 
-            if (!Auth::attempt($credentials)) {
-                return $this->error('Credential mismatch', 400);
-            }
+            // if (!Auth::attempt($credentials)) {
+            //     return $this->error('Credential mismatch', 400);
+            // }
 
             $success['user'] =  $user;
             $success['phone_code'] = $response;
