@@ -81,8 +81,8 @@ class PredictController extends Controller
             $predict = Predict::create([
                 'user_id' => Auth::id(),
                 'amount' => $request->amount,
-                'amount_earned' => $request->amount * 500,
-                'odds' => 500,
+                'amount_earned' => $request->amount * 20,
+                'odds' => 20,
                 'values' => $request->values,
             ]);
 

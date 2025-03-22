@@ -11,7 +11,7 @@ class OneBet extends Model
 {
     use HasFactory;
     
-    protected $fillable =['user_id', 'uuid', 'referrer_id', 'initial_value', 'second_value', 'winner', 'amount', 'odds', 'status', 'status', 'amount_earned'];
+    protected $fillable =['user_id', 'uuid', 'referrer_id', 'initial_value', 'second_value', 'result', 'winner', 'amount', 'odds', 'status', 'status', 'amount_earned'];
 
     public function user(): BelongsTo
     {

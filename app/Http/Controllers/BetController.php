@@ -120,9 +120,9 @@ class BetController extends Controller
                 'user_id' => Auth::id(),
                 'amount' => $request->amount,
                 'values' => $request->values,
-                'amount_earned' => $request->amount * 500,
+                'amount_earned' => $request->amount * 5,
                 'system_value' => $randomNumbers,
-                'odds' => 500,
+                'odds' => 5,
                 'status' => $success ? 'successful' : 'failed'
             ]);
 
@@ -139,7 +139,7 @@ class BetController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'wallet_type' => 'required|in:real,bonus',
-                'initial_value' => 'required|numeric|in:1,2',
+                'initial_value' => 'required|numeric|in:1,2,3',
                 'amount' => 'required|numeric|min:50|max:500000',
             ], [
                 'amount.min' => 'The minimum amount you can stake is N50',
@@ -160,8 +160,8 @@ class BetController extends Controller
                 'user_id' => Auth::id(),
                 'initial_value' => $request->initial_value,
                 'amount' => $request->amount,
-                'amount_earned' => $request->amount * 500,
-                'odds' => 500,
+                'amount_earned' => $request->amount * 2,
+                'odds' => 2,
             ]);
 
             if ($onebet) {
@@ -195,6 +195,7 @@ class BetController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'wallet_type' => 'required|in:real,bonus',
+                'second_value' => 'required|numeric',
             ]);
 
             if ($validator->fails()) {
@@ -204,7 +205,7 @@ class BetController extends Controller
             $bet = OneBet::findOrFail($id);
 
             // Generate a random number between 1 and 2
-            $randomNumber = rand(1, 2);
+            $randomNumber = rand(1, 3);
             if ($randomNumber == $bet->initial_value) {
                 $payload = [
                     'user_id' => $bet->user_id,
@@ -215,7 +216,7 @@ class BetController extends Controller
                     'payment_channel' => 'wallet',
                     'ip_address' => null,
                     'domain' => null,
-                    'narration' => 'Your special bet was successful',
+                    'narration' => 'Your one-on-one bet was successful',
                 ];
                 (new WalletCredit())->createCredit($payload);
 
@@ -236,7 +237,42 @@ class BetController extends Controller
                 $bet->update([
                     'winner' => $bet->user_id,
                     'status' => 'completed',
-                    'second_value' => $randomNumber
+                    'second_value' => $request->second_value,
+                    'result' => $randomNumber
+                ]);
+            } else if ($randomNumber == $request->second_value) {
+                $payload = [
+                    'user_id' => Auth::id(),
+                    'reference' => (new GenerateReferenceService())->generateReference(),
+                    'amount' => $request->amount,
+                    'trans_group' => TransactionGroup::ONE_ON_ONE,
+                    'gateway_response' => 'wallet',
+                    'payment_channel' => 'wallet',
+                    'ip_address' => null,
+                    'domain' => null,
+                    'narration' => 'wallet debitted for game',
+                    'wallet_type' => $request->wallet_type
+                ];
+                (new WalletDebit())->debit($payload);
+
+                $payload = [
+                    'user_id' => Auth::id(),
+                    'reference' => (new GenerateReferenceService())->generateReference(),
+                    'amount' => $bet->amount_earned,
+                    'trans_group' => TransactionGroup::ONE_ON_ONE,
+                    'gateway_response' => 'wallet',
+                    'payment_channel' => 'wallet',
+                    'ip_address' => null,
+                    'domain' => null,
+                    'narration' => 'Your one-on-one bet was successful',
+                ];
+                (new WalletCredit())->createCredit($payload);
+
+                $bet->update([
+                    'winner' => Auth::id(),
+                    'status' => 'completed',
+                    'second_value' => $request->second_value,
+                    'result' => $randomNumber
                 ]);
             } else {
                 $payload = [
@@ -248,14 +284,16 @@ class BetController extends Controller
                     'payment_channel' => 'wallet',
                     'ip_address' => null,
                     'domain' => null,
-                    'narration' => 'Your special bet was successful'
+                    'narration' => 'Your one on one bet was not successful',
+                    'wallet_type' => $request->wallet_type
                 ];
-                (new WalletCredit())->createCredit($payload);
+                (new WalletDebit())->debit($payload);
 
                 $bet->update([
-                    'winner' => Auth::id(),
+                    'winner' => null,
                     'status' => 'completed',
-                    'second_value' => $randomNumber
+                    'second_value' => $request->second_value,
+                    'result' => $randomNumber
                 ]);
             }
 
