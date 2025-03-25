@@ -55,8 +55,9 @@ class VerificationController extends Controller
     public function sendToAdmin(Request $request)
     {
         try {
+            // 9036483270
             $params = [
-                'phone_number' => $this->getPhoneNumberWithDialingCode('9036483270', '+234'),
+                'phone_number' => $this->getPhoneNumberWithDialingCode('8061249343', '+234'),
             ];
 
             $response = sendVerOTP($params);
