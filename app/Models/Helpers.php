@@ -60,7 +60,7 @@ function sendVerOTP($params)
         "from" => "HallaBet",
         "channel" => "dnd",
         "pin_attempts" => 1,
-        "pin_time_to_live" =>  5,
+        "pin_time_to_live" =>  2,
         "pin_length" => 6,
         "pin_placeholder" => "< 1234 >",
         "message_text" => 'Your sprillgames verification code is < 1234 >',

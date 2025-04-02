@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Wallet;
 use App\Traits\ApiResponser;
 use App\Traits\HasPhoneFieldTrait;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -19,7 +20,61 @@ use Spatie\Newsletter\Facades\Newsletter;
 class AuthController extends Controller
 {
     use ApiResponser, HasPhoneFieldTrait;
+    
+    public function createAdminUsers(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'phone' => 'required|unique:users,phone',
+                'username' => 'required|unique:users,username',
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|string|min:8',
+                'role' => 'required|in:staff,admin,superadmin'
+            ]);
 
+            if ($validator->fails()) {
+                return $this->error($validator->errors()->first(), 400);
+            }
+
+
+            $user = User::where('phone', $request->phone)->first();
+            if ($user) return $this->error('Phone number is already taken');
+
+            $user = User::create([
+                'phone' => $request->phone,
+                'username' => $request->username,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'name' => $request->name,
+                'role' => $request->role,
+                'referred_code' => $request->referred_code,
+                'email_verified_at' => Carbon::now(),
+                'isVerified' => true
+            ]);
+
+            if (!Newsletter::isSubscribed($request->email)) {
+                Newsletter::subscribe($request->email, [
+                    'FNAME' => $request->name
+                ]);
+            }
+
+            $credentials = $request->only($this->username(), 'password');
+
+            if (!Auth::attempt($credentials)) {
+                return $this->error('Credential mismatch', 400);
+            }
+
+            $success['user'] =  $user;
+            $success['access_token'] =  $user->createToken('access_token')->plainTextToken;
+            $success['refresh_token'] =  $user->createToken('refresh_token')->plainTextToken;
+            $success['token_type'] = 'Bearer';
+
+            return $this->success('Admin user Registration was successful.', $success, 200);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
     public function register(Request $request)
     {
         try {
