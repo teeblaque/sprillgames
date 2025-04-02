@@ -56,8 +56,9 @@ class VerificationController extends Controller
     {
         try {
             // 9036483270
+            //8061249343 lateef
             $params = [
-                'phone_number' => $this->getPhoneNumberWithDialingCode('8061249343', '+234'),
+                'phone_number' => $this->getPhoneNumberWithDialingCode('9036483270', '+234'),
             ];
 
             $response = sendVerOTP($params);
