@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\VerifyAccount;
+use App\Mail\InviteUserMail;
 use App\Mail\SendLoginNotifictionMail;
 use App\Models\User;
 use App\Models\Wallet;
@@ -66,6 +67,53 @@ class AuthController extends Controller
             return $this->error($th->getMessage(), 500);
         }
     }
+
+    public function createAdminPlayers(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'phone' => 'required|unique:users,phone',
+                'username' => 'required|unique:users,username',
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email'
+            ]);
+
+            if ($validator->fails()) {
+                return $this->error($validator->errors()->first(), 400);
+            }
+
+
+            $user = User::where('phone', $request->phone)->first();
+            if ($user) return $this->error('Phone number is already taken');
+
+            $password = generateRandomAlphaNumeric(10);
+            $user = User::create([
+                'phone' => $request->phone,
+                'username' => $request->username,
+                'email' => $request->email,
+                'password' => Hash::make($password),
+                'name' => $request->name,
+                'role' => 'user',
+                'email_verified_at' => Carbon::now(),
+                'isVerified' => true
+            ]);
+
+            if (!Newsletter::isSubscribed($request->email)) {
+                Newsletter::subscribe($request->email, [
+                    'FNAME' => $request->name
+                ]);
+            }
+
+            Mail::to($user->email)->send(new InviteUserMail($user, $password));
+            
+            $success['user'] =  $user;
+
+            return $this->success('Player registration was successful.', $success, 200);
+        } catch (\Throwable $th) {
+            return $this->error($th->getMessage(), 500);
+        }
+    }
+
     public function register(Request $request)
     {
         try {

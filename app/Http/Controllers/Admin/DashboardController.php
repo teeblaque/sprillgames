@@ -48,18 +48,30 @@ class DashboardController extends Controller
 
     public function users(Request $request)
     {
-        if ($request->search) {
-            $users = User::where('role', 'user')->with('wallet')->where('first_name', $request->search)->orWhere('last_name', $request->search)->paginate($request->per_page ?? 20);
-        }else{
-            $users = User::where('role', 'user')->with('wallet')->paginate($request->per_page ?? 20);
+        $query = User::where('role', 'user')->with('wallet');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'LIKE', "%$search%");
         }
-        return $this->success('user retrieved', $users, 200);
+
+        $users = $query->paginate($request->per_page ?? 20);
+
+        return $this->success('Users retrieved', $users, 200);
     }
 
-    public function adminUsers()
+    public function adminUsers(Request $request)
     {
-        $users = User::where('role', '!=', 'user')->paginate($request->per_page ?? 20);
-        return $this->success('user retrieved', $users, 200);
+        $query = User::where('role', '!=', 'user')->with('wallet');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'LIKE', "%$search%");
+        }
+
+        $users = $query->paginate($request->per_page ?? 20);
+
+        return $this->success('Users retrieved', $users, 200);
     }
 
     public function singleUser($id)

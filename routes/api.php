@@ -115,6 +115,7 @@ Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function ()
         Route::get('users', [AdminDashboardController::class, 'users']);
         Route::get('admin-users', [AdminDashboardController::class, 'adminUsers']);
         Route::post('admin-users', [AuthController::class, 'createAdminUsers']);
+        Route::post('admin-players', [AuthController::class, 'createAdminPlayers']);
         Route::patch('user/block/{id}', [AdminDashboardController::class, 'blockUser']);
         Route::patch('user/unblock/{id}', [AdminDashboardController::class, 'unblockUser']);
         Route::get('user/{id}', [AdminDashboardController::class, 'singleUser']);
