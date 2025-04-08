@@ -50,8 +50,8 @@ class WithdrawalController extends Controller
             if (!Hash::check($request->transaction_pin, Auth::user()->transaction_pin)) {
                 return $this->error('Invalid transaction pin.', 400);
             }
-            if ($request->amount < 2000) {
-                return $this->error('Minimum withdrawal amount must be greater than N2,000', 400);
+            if ($request->amount < 100) {
+                return $this->error('Minimum withdrawal amount must be greater than N100', 400);
             }
 
             if (!(new AccountDebit)->balanceCheck($request->amount, Auth::id())) {
