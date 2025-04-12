@@ -103,6 +103,11 @@ Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function ()
             Route::get('transactions', [BetController::class, 'transactions']);
             Route::patch('join-bet/{id}', [BetController::class, 'joinBet']);
 
+            //bet transactions
+            Route::get('one-bets-transaction', [BetController::class, 'oneBetsTrans']);
+            Route::get('special-bets-transaction', [BetController::class, 'specialBetTrans']);
+            Route::get('predict-bets-transactions', [BetController::class, 'predictTrans']);
+
             //predict
             Route::get('fixtures', [PredictController::class, 'predictMach']);
             Route::post('predict', [PredictController::class, 'predict']);

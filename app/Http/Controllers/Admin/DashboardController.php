@@ -226,6 +226,7 @@ class DashboardController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'correction_type' => 'required|in:up,down',
+                'real_account' => 'required|in:true,false',
                 'amount' => 'required'
             ]);
 
@@ -240,9 +241,30 @@ class DashboardController extends Controller
             $wallet = Wallet::where('user_id', $id)->first();
             if (!$wallet) return $this->error('User wallet not found');
 
-            $wallet->update([
-                'bonus_balance' => $request->correction_type == 'up' ? $wallet->bonus_balance + $request->amount : $wallet->bonus_balance - $request->amount
-            ]);
+            if ($request->real) {
+                if ($request->correction_type == 'up') {
+                    $wallet->update([
+                        'balance' => $wallet->balance + $request->amount,
+                        // 'bonus_balance' =>  $wallet->bonus_balance + $request->amount
+                    ]);
+                } else {
+                    $wallet->update([
+                        'balance' => $wallet->balance - $request->amount,
+                        'bonus_balance' =>  $wallet->bonus_balance - $request->amount
+                    ]);
+                }
+            } else{
+                if ($request->correction_type == 'up') {
+                    $wallet->update([
+                        'bonus_balance' =>  $wallet->bonus_balance + $request->amount
+                    ]);
+                } else {
+                    $wallet->update([
+                        'balance' => $wallet->balance - $request->amount,
+                        'bonus_balance' =>  $wallet->bonus_balance - $request->amount
+                    ]);
+                }
+            }
             return $this->success('Bonus account updated successfully');
         } catch (\Throwable $th) {
             return $this->error($th->getMessage(), 500);

@@ -172,7 +172,7 @@
                                        letter-spacing: 10px;
                                        width: 500px;
                                        ">
-                                    <h4>Email {{ $user->email }}</h4>
+                                    <h4>Phone {{ $user->phone }}</h4>
                                     <h4>Password {{ $password }}</h4>
                                 </td>
                             </tr>

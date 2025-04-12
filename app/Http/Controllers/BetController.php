@@ -330,4 +330,34 @@ class BetController extends Controller
 
         return $this->success('Record retrieved', $transactions);
     }
+
+    public function oneBetsTrans(Request $request)
+    {
+        $query = OneBet::where('user_id', Auth::id())
+            ->with('user');
+
+        $bets = $query->paginate($request->per_page ?? 20);
+
+        return $this->success('Record retrieved', $bets);
+    }
+
+    public function specialBetTrans(Request $request)
+    {
+        $query = Bet::where('user_id', Auth::id())
+            ->with('user');
+
+        $bets = $query->paginate($request->per_page ?? 20);
+
+        return $this->success('Record retrieved', $bets);
+    }
+
+    public function predictTrans(Request $request)
+    {
+        $query = Predict::where('user_id', Auth::id())
+            ->with('user');
+
+        $bets = $query->paginate($request->per_page ?? 20);
+
+        return $this->success('Record retrieved', $bets);
+    }
 }
