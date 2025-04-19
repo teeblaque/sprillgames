@@ -121,6 +121,10 @@ class WithdrawalController extends Controller
                 return $this->error('Invalid transaction pin.', 400);
             }
 
+            $withdrawal->update([
+                'status' => 'cancelled'
+            ]);
+
             $reference = (new GenerateReferenceService())->generateReference();
             $payload = [
                 'user_id' => Auth::id(),
@@ -135,10 +139,6 @@ class WithdrawalController extends Controller
             if (!$logTransaction) {
                 return $this->error('Could not process withdrawal, contact support!!!', 400);
             }
-
-            $withdrawal->update([
-                'status' => 'cancelled'
-            ]);
 
             if ($wallet->balance_after >= 0 && $withdrawal->amount >= 0) {
                 $wallet->update([

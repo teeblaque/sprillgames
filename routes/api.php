@@ -11,6 +11,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PredictController;
 use App\Http\Controllers\SirupaymentController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\USSD\UssdController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\WithdrawalController;
@@ -138,5 +139,31 @@ Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function ()
             Route::get('one-on-one', [Transaction::class, 'one_on_one']);
             Route::get('predict', [Transaction::class, 'predict']);
         });
+    });
+});
+
+
+#ussd route
+Route::group(['middleware' => [], 'prefix' => 'ussd'], function(){
+    Route::post('activate-subscription/{msisdn}', [UssdController::class, 'activate_subscription']);
+    Route::post('fund-wallet/{msisdn}', [UssdController::class, 'fund_wallet']);
+    Route::get('subscription-status/{msisdn}', [UssdController::class, 'subscription_status']);
+    Route::get('wallet-balance/{msisdn}', [UssdController::class, 'wallet_balance']);
+
+    Route::prefix('bet')->group(function () {
+        Route::post('special/{msisdn}', [UssdController::class, 'special']);
+        Route::post('one-on-one/{msisdn}', [UssdController::class, 'oneOnOne']);
+        Route::patch('join-bet/{id}', [UssdController::class, 'joinBet']);
+
+        //predict
+        Route::get('fixtures', [PredictController::class, 'predictMach']);
+        Route::post('predict/{msisdn}', [UssdController::class, 'predict']);
+        Route::get('pending-prediction/{msisdn}', [PredictController::class, 'pendingBet']);
+    });
+
+     #withdrawal
+     Route::group(['prefix' => 'withdrawal'], function () {
+        Route::get('/user-bank/{msisdn}', [UssdController::class, 'user_bank']);
+        Route::post('/{msisdn}', [UssdController::class, 'store']);
     });
 });
