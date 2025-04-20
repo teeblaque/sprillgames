@@ -226,7 +226,7 @@ class DashboardController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'correction_type' => 'required|in:up,down',
-                'real_account' => 'required|in:true,false',
+                'real_account' => 'required',
                 'amount' => 'required'
             ]);
 
