@@ -17,6 +17,7 @@ use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\WithdrawalController;
 use App\Http\Middleware\BlockAccess;
 use App\Http\Middleware\CheckAdmin;
+use App\Http\Middleware\CheckAuthAccessCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -144,7 +145,7 @@ Route::group(['middleware' => ['auth:sanctum', BlockAccess::class]], function ()
 
 
 #ussd route
-Route::group(['middleware' => [], 'prefix' => 'ussd'], function(){
+Route::group(['middleware' => [CheckAuthAccessCode::class], 'prefix' => 'ussd'], function(){
     Route::post('activate-subscription/{msisdn}', [UssdController::class, 'activate_subscription']);
     Route::post('fund-wallet/{msisdn}', [UssdController::class, 'fund_wallet']);
     Route::get('subscription-status/{msisdn}', [UssdController::class, 'subscription_status']);

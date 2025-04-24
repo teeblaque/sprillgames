@@ -55,7 +55,7 @@ class UssdController extends Controller
     {
         try {
             $validator = Validator::make($request->input(), [
-                'subscription_amount' => 'required'
+                'amount' => 'required'
             ]);
 
             $user = User::where(['phone' => $msisdn])->first();

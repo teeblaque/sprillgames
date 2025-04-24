@@ -66,6 +66,9 @@ return [
     'siru_redirect_url' => env('SIRU_REDIRECT_URL'),
     'siru_notify_url' => env('SIRU_NOTIFY_URL'),
 
+    //ussd access
+    'access_code' => env('USSD_ACCESS_CODE'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
